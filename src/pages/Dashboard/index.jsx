@@ -66,7 +66,7 @@ export function DashboardPage({ user, onNavigate }) {
     },
     {
       id: "evt_9917",
-      action: "Profile Introspection (/api/auth/me)",
+      action: "Profile Introspection",
       user: user?.email || "principal@authshield.io",
       role: user?.role || "user",
       ip: "127.0.0.1 (Loopback)",
@@ -76,7 +76,7 @@ export function DashboardPage({ user, onNavigate }) {
     },
     {
       id: "evt_9916",
-      action: "RBAC Admin Enforcement (/api/auth/admin/dashboard)",
+      action: "RBAC Admin Enforcement",
       user: "guest_probe@scanner.net",
       role: "anonymous",
       ip: "198.51.100.44",
@@ -136,7 +136,7 @@ export function DashboardPage({ user, onNavigate }) {
             onClick={handleTestAdminEndpoint}
             icon={<span className="material-symbols-outlined text-[16px]">verified_user</span>}
           >
-            Test Admin RBAC (/admin/dashboard)
+            Kiểm tra quyền Admin
           </Button>
         </div>
       </div>
@@ -423,7 +423,7 @@ export function DashboardPage({ user, onNavigate }) {
         isOpen={showSimModal}
         onClose={() => setShowSimModal(false)}
         title="RBAC Authorization Inspection"
-        subtitle="Kết quả kiểm tra Role-Based Access Control tại GET /api/auth/admin/dashboard"
+        subtitle="Kết quả kiểm tra phân quyền Role-Based Access Control"
         footer={
           <Button variant="secondary" onClick={() => setShowSimModal(false)}>
             Đóng cửa sổ

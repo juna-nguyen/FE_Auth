@@ -183,7 +183,7 @@ export function ProfileSecurityPage({ onUserUpdate, onLogout }) {
             isLoading={loadingProfile}
             icon={<span className="material-symbols-outlined text-[16px]">sync</span>}
           >
-            Làm mới hồ sơ (/me)
+            Làm mới hồ sơ
           </Button>
           <Button
             variant="danger"
@@ -315,7 +315,7 @@ export function ProfileSecurityPage({ onUserUpdate, onLogout }) {
               <div>
                 <CardTitle>Đổi mật khẩu tài khoản</CardTitle>
                 <CardDescription>
-                  Cập nhật mật khẩu xác thực mới (Gọi API PUT /api/auth/change-password)
+                  Cập nhật mật khẩu xác thực mới
                 </CardDescription>
               </div>
               <Badge variant="primary">Security Form</Badge>
@@ -440,7 +440,7 @@ export function ProfileSecurityPage({ onUserUpdate, onLogout }) {
                     isLoading={changePasswordLoading}
                     icon={<span className="material-symbols-outlined text-[18px]">save</span>}
                   >
-                    {changePasswordLoading ? "Đang cập nhật mật khẩu..." : "Lưu thay đổi mật khẩu (PUT /change-password)"}
+                    {changePasswordLoading ? "Đang cập nhật mật khẩu..." : "Lưu thay đổi mật khẩu"}
                   </Button>
                 </div>
               </form>

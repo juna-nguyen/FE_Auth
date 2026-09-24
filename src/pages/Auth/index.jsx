@@ -331,7 +331,7 @@ export function AuthPage({ onLoginSuccess }) {
                     className="w-full py-3"
                     icon={<span className="material-symbols-outlined text-[18px]">login</span>}
                   >
-                    {loading ? "Đang xác thực & Nhận Token..." : "Authenticate & Request Bearer Token"}
+                    {loading ? "Đang xác thực..." : "Đăng nhập"}
                   </Button>
                 </div>
               </form>
@@ -463,7 +463,7 @@ export function AuthPage({ onLoginSuccess }) {
                     className="w-full py-3"
                     icon={<span className="material-symbols-outlined text-[18px]">person_add</span>}
                   >
-                    {loading ? "Đang khởi tạo tài khoản..." : "Tạo tài khoản mới (Register)"}
+                    {loading ? "Đang khởi tạo tài khoản..." : "Tạo tài khoản mới"}
                   </Button>
                 </div>
               </form>

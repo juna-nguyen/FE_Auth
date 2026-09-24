@@ -287,12 +287,12 @@ export function UserManagementPage({ currentUser }) {
                   <div>
                     <div className="flex items-center gap-2">
                       <span className="text-xs font-bold text-[#4A353A]">
-                        Superuser Administrator (`role: "admin"`)
+                        Quản trị viên (Administrator)
                       </span>
                       <Badge variant="admin">Full Control</Badge>
                     </div>
                     <p className="text-[11px] text-[#7D676E] mt-0.5">
-                      Toàn quyền truy cập <code className="text-[#D84A75] font-semibold">/api/auth/admin/dashboard</code>, xem chỉ số telemetry và quản trị IAM.
+                      Toàn quyền truy cập khu vực quản trị, xem chỉ số thống kê và quản lý người dùng.
                     </p>
                   </div>
                 </label>
@@ -315,12 +315,12 @@ export function UserManagementPage({ currentUser }) {
                   <div>
                     <div className="flex items-center gap-2">
                       <span className="text-xs font-bold text-[#4A353A]">
-                        Standard Identity (`role: "user"`)
+                        Người dùng chuẩn (User)
                       </span>
                       <Badge variant="user">Restricted</Badge>
                     </div>
                     <p className="text-[11px] text-[#7D676E] mt-0.5">
-                      Xem thông tin cá nhân (<code className="text-[#D84A75] font-semibold">/api/auth/me</code>) và đổi mật khẩu. Bị chặn khi truy cập routes quản trị.
+                      Xem thông tin cá nhân, cập nhật mật khẩu và các tính năng người dùng thông thường.
                     </p>
                   </div>
                 </label>
