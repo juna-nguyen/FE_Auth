@@ -1,16 +1,16 @@
-import React from "react";
+﻿import React from "react";
 
 export function Badge({ variant = "default", children, className = "", icon = null }) {
   const variants = {
-    default: "bg-[#222a3d] text-[#dae2fd] border border-[#464554]/40",
-    primary: "bg-[#8083ff]/15 text-[#c0c1ff] border border-[#8083ff]/30",
-    admin: "bg-[#571bc1]/40 text-[#d0bcff] border border-[#8083ff]/40 shadow-sm",
-    user: "bg-[#171f33] text-[#dae2fd] border border-[#464554]/60",
-    success: "bg-[#00885d]/20 text-[#4edea3] border border-[#4edea3]/30",
-    warning: "bg-[#ffb4ab]/10 text-[#ffb4ab] border border-[#ffb4ab]/30",
-    danger: "bg-[#93000a]/30 text-[#ffb4ab] border border-[#ffb4ab]/40",
-    outline: "border border-[#464554] text-[#dae2fd]",
-    cluster: "bg-[#4edea3]/15 text-[#4edea3] border border-[#4edea3]/30",
+    default: "bg-[#FFF0F5] text-[#7D676E] border border-[#FAD6DF]",
+    primary: "bg-[#FFEBF1] text-[#D84A75] border border-[#FAD6DF]",
+    admin: "bg-gradient-to-r from-[#FF8DA1]/20 to-[#E8A0BF]/30 text-[#9C2755] border border-[#FF8DA1]/40 shadow-xs font-semibold",
+    user: "bg-[#FAF0F2] text-[#634E55] border border-[#FAD6DF]",
+    success: "bg-[#E8F8F5] text-[#1B7A5C] border border-[#B9ECE1]",
+    warning: "bg-[#FFF8E6] text-[#B45309] border border-[#FDE68A]",
+    danger: "bg-[#FFEBF0] text-[#C8234D] border border-[#FFCCD7]",
+    outline: "border border-[#FAD6DF] text-[#4A353A] bg-[#FFFFFF]",
+    cluster: "bg-[#D4F1F4] text-[#0E6251] border border-[#A2D9CE] font-semibold",
   };
 
   return (
@@ -19,7 +19,7 @@ export function Badge({ variant = "default", children, className = "", icon = nu
         variants[variant] || variants.default
       } ${className}`}
     >
-      {icon && <span className="text-[14px] leading-none">{icon}</span>}
+      {icon && <span className="text-[14px] leading-none shrink-0">{icon}</span>}
       {children}
     </span>
   );

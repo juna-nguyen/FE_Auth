@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 import Header from "./Header";
 import Sidebar from "./Sidebar";
 
@@ -6,19 +6,31 @@ export function AppLayout({
   currentPath,
   onNavigate,
   user,
+  isAuthenticated,
   onLogout,
+  onRequireAuthNotice,
   children,
   hideSidebar = false,
 }) {
   return (
-    <div className="min-h-screen bg-[#0b1326] text-[#dae2fd]">
+    <div className="min-h-screen bg-[#FFF0F5] text-[#4A353A]">
       <Header
         currentPath={currentPath}
         onNavigate={onNavigate}
         user={user}
+        isAuthenticated={isAuthenticated}
         onLogout={onLogout}
+        onRequireAuthNotice={onRequireAuthNotice}
       />
-      {!hideSidebar && <Sidebar currentPath={currentPath} onNavigate={onNavigate} />}
+      {!hideSidebar && (
+        <Sidebar
+          currentPath={currentPath}
+          onNavigate={onNavigate}
+          isAuthenticated={isAuthenticated}
+          user={user}
+          onRequireAuthNotice={onRequireAuthNotice}
+        />
+      )}
       <main
         className={`pt-16 min-h-screen ${
           !hideSidebar ? "md:pl-64" : ""

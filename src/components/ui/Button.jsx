@@ -1,4 +1,4 @@
-import React from "react";
+﻿import React from "react";
 
 export function Button({
   variant = "primary",
@@ -8,48 +8,74 @@ export function Button({
   icon = null,
   iconRight = null,
   disabled = false,
+  isLoading = false,
   type = "button",
   onClick,
   ...props
 }) {
   const baseStyles =
-    "inline-flex items-center justify-center font-medium transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed select-none outline-none focus:ring-2 focus:ring-[#8083ff]/50 focus:ring-offset-2 focus:ring-offset-[#0b1326]";
+    "inline-flex items-center justify-center font-medium transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed select-none outline-none focus:ring-2 focus:ring-[#FF8DA1]/50 focus:ring-offset-2 focus:ring-offset-[#FFF0F5] shadow-xs active:scale-[0.98]";
 
   const sizes = {
-    sm: "text-xs px-2.5 py-1.5 rounded-lg gap-1.5",
-    md: "text-sm px-4 py-2 rounded-lg gap-2",
-    lg: "text-base px-5 py-2.5 rounded-xl gap-2.5",
-    icon: "p-2 rounded-lg",
+    sm: "text-xs px-3 py-1.5 rounded-xl gap-1.5",
+    md: "text-sm px-4 py-2.5 rounded-xl gap-2",
+    lg: "text-base px-6 py-3 rounded-2xl gap-2.5",
+    icon: "p-2.5 rounded-xl",
   };
 
   const variants = {
     primary:
-      "bg-[#8083ff] text-[#0d0096] font-semibold hover:bg-[#c0c1ff] shadow-[0_0_15px_rgba(128,131,255,0.3)] active:scale-[0.98]",
+      "bg-gradient-to-r from-[#FF8DA1] to-[#FF69B4] text-white font-semibold hover:from-[#FF69B4] hover:to-[#E05297] shadow-[0_4px_14px_rgba(255,105,180,0.35)] hover:shadow-[0_6px_20px_rgba(255,105,180,0.45)]",
     secondary:
-      "bg-[#171f33] text-[#dae2fd] border border-[#464554]/60 hover:bg-[#222a3d] hover:border-[#908fa0]/40 active:scale-[0.98]",
+      "bg-[#FFFFFF] text-[#4A353A] border border-[#FAD6DF] hover:bg-[#FFF0F5] hover:border-[#FFB6C1] hover:text-[#D84A75] shadow-sm",
     admin:
-      "bg-gradient-to-r from-[#8083ff] to-[#571bc1] text-[#ffffff] font-semibold hover:opacity-90 shadow-[0_0_15px_rgba(87,27,193,0.35)] active:scale-[0.98]",
+      "bg-gradient-to-r from-[#FF8DA1] via-[#E8A0BF] to-[#C77DFF] text-white font-semibold hover:opacity-95 shadow-[0_4px_14px_rgba(232,160,191,0.45)]",
     danger:
-      "bg-[#93000a]/20 text-[#ffb4ab] border border-[#ffb4ab]/30 hover:bg-[#93000a]/40 hover:border-[#ffb4ab]/60 active:scale-[0.98]",
+      "bg-[#FFEBF0] text-[#C8234D] border border-[#FFCCD7] hover:bg-[#FFD4DE] hover:border-[#FFA8BC]",
     ghost:
-      "bg-transparent text-[#c7c4d7] hover:bg-[#171f33] hover:text-[#dae2fd]",
+      "bg-transparent text-[#7D676E] hover:bg-[#FFEBF1] hover:text-[#D84A75] shadow-none",
     outline:
-      "bg-transparent border border-[#464554] text-[#dae2fd] hover:bg-[#171f33] hover:border-[#8083ff]/50",
+      "bg-[#FFFFFF] border border-[#FAD6DF] text-[#4A353A] hover:bg-[#FFEBF1] hover:border-[#FF8DA1] hover:text-[#D84A75]",
   };
+
+  const isButtonDisabled = disabled || isLoading;
 
   return (
     <button
       type={type}
-      disabled={disabled}
+      disabled={isButtonDisabled}
       onClick={onClick}
       className={`${baseStyles} ${sizes[size] || sizes.md} ${
         variants[variant] || variants.primary
       } ${className}`}
       {...props}
     >
-      {icon && <span className="shrink-0">{icon}</span>}
+      {isLoading ? (
+        <svg
+          className="animate-spin -ml-0.5 mr-2 h-4 w-4 text-current"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <circle
+            className="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            strokeWidth="4"
+          />
+          <path
+            className="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+          />
+        </svg>
+      ) : icon ? (
+        <span className="shrink-0">{icon}</span>
+      ) : null}
       {children}
-      {iconRight && <span className="shrink-0">{iconRight}</span>}
+      {!isLoading && iconRight && <span className="shrink-0">{iconRight}</span>}
     </button>
   );
 }

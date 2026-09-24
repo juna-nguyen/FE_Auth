@@ -1,41 +1,41 @@
-@import "tailwindcss";
+﻿@import "tailwindcss";
 @import "tw-animate-css";
 @import "@fontsource-variable/geist";
 
 @theme {
-  --color-surface: #0b1326;
-  --color-surface-dim: #0b1326;
-  --color-surface-bright: #31394d;
-  --color-surface-container-lowest: #060e20;
-  --color-surface-container-low: #131b2e;
-  --color-surface-container: #171f33;
-  --color-surface-container-high: #222a3d;
-  --color-surface-container-highest: #2d3449;
+  --color-surface: #FFF0F5;
+  --color-surface-dim: #FAF0F2;
+  --color-surface-bright: #FFFFFF;
+  --color-surface-container-lowest: #FFFFFF;
+  --color-surface-container-low: #FFF5F8;
+  --color-surface-container: #FFEBF1;
+  --color-surface-container-high: #FDE2EB;
+  --color-surface-container-highest: #FAD6DF;
 
-  --color-on-surface: #dae2fd;
-  --color-on-surface-variant: #c7c4d7;
-  --color-outline: #908fa0;
-  --color-outline-variant: #464554;
+  --color-on-surface: #4A353A;
+  --color-on-surface-variant: #7D676E;
+  --color-outline: #D4A5B2;
+  --color-outline-variant: #FAD6DF;
 
-  --color-primary: #c0c1ff;
-  --color-on-primary: #1000a9;
-  --color-primary-container: #8083ff;
-  --color-on-primary-container: #0d0096;
+  --color-primary: #FF8DA1;
+  --color-on-primary: #FFFFFF;
+  --color-primary-container: #FFD3DC;
+  --color-on-primary-container: #5E1428;
 
-  --color-secondary: #d0bcff;
-  --color-on-secondary: #3c0091;
-  --color-secondary-container: #571bc1;
-  --color-on-secondary-container: #c4abff;
+  --color-secondary: #E8A0BF;
+  --color-on-secondary: #4A1731;
+  --color-secondary-container: #FAD0E0;
+  --color-on-secondary-container: #3B0E25;
 
-  --color-tertiary: #4edea3;
-  --color-on-tertiary: #003824;
-  --color-tertiary-container: #00885d;
-  --color-on-tertiary-container: #000703;
+  --color-tertiary: #52B788;
+  --color-on-tertiary: #FFFFFF;
+  --color-tertiary-container: #D4F1F4;
+  --color-on-tertiary-container: #0D4734;
 
-  --color-error: #ffb4ab;
-  --color-on-error: #690005;
-  --color-error-container: #93000a;
-  --color-on-error-container: #ffdad6;
+  --color-error: #E63946;
+  --color-on-error: #FFFFFF;
+  --color-error-container: #FFE8EC;
+  --color-on-error-container: #8C111C;
 
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-headline: 'Plus Jakarta Sans', var(--font-sans);
@@ -44,28 +44,33 @@
 
 @layer base {
   body {
-    background-color: var(--color-surface);
-    color: var(--color-on-surface);
+    background-color: #FFF0F5;
+    background-image: 
+      radial-gradient(at 0% 0%, rgba(255, 182, 193, 0.25) 0px, transparent 50%),
+      radial-gradient(at 100% 0%, rgba(232, 160, 191, 0.2) 0px, transparent 50%),
+      radial-gradient(at 50% 100%, rgba(255, 218, 226, 0.3) 0px, transparent 50%);
+    background-attachment: fixed;
+    color: #4A353A;
     font-family: var(--font-sans);
     margin: 0;
     padding: 0;
     -webkit-font-smoothing: antialiased;
   }
 
-  /* Custom scrollbar */
+  /* Custom scrollbar in pastel pink theme */
   ::-webkit-scrollbar {
     width: 6px;
     height: 6px;
   }
   ::-webkit-scrollbar-track {
-    background: #0b1326;
+    background: #FAF0F2;
   }
   ::-webkit-scrollbar-thumb {
-    background: #2d3449;
+    background: #FAD6DF;
     border-radius: 9999px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: #464554;
+    background: #FF8DA1;
   }
 }
 
@@ -80,24 +85,27 @@
   font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
 }
 
-/* Glassmorphism utility */
+/* Glassmorphism utility - Pastel Pink */
 .glass-panel {
-  background: rgba(23, 31, 51, 0.75);
+  background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid #FAD6DF;
+  box-shadow: 0 8px 24px rgba(233, 114, 150, 0.08);
 }
 
 .glass-card {
-  background: rgba(19, 27, 46, 0.85);
+  background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(70, 69, 84, 0.35);
+  border: 1px solid #FAD6DF;
+  box-shadow: 0 8px 24px rgba(233, 114, 150, 0.08);
 }
 
 .glass-dropdown {
-  background: rgba(23, 31, 51, 0.95);
+  background: rgba(255, 255, 255, 0.98);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(192, 193, 255, 0.2);
+  border: 1px solid #FAD6DF;
+  box-shadow: 0 12px 32px rgba(233, 114, 150, 0.15);
 }

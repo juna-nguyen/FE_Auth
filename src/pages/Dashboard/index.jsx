@@ -1,426 +1,406 @@
-import React, { useState, useEffect } from "react";
+﻿import React, { useState } from "react";
 import Card, { CardHeader, CardTitle, CardDescription, CardContent } from "../../components/ui/Card";
-import Badge from "../../components/ui/Badge";
 import Button from "../../components/ui/Button";
+import Badge from "../../components/ui/Badge";
 import Modal from "../../components/ui/Modal";
 import Toast from "../../components/ui/Toast";
 import { authApi } from "../../services/api/apiUser";
 
 export function DashboardPage({ user, onNavigate }) {
-  const [adminData, setAdminData] = useState(null);
-  const [adminError, setAdminError] = useState(null);
-  const [loadingAdmin, setLoadingAdmin] = useState(false);
-
-  // Modal states
   const [showSimModal, setShowSimModal] = useState(false);
   const [showJsonModal, setShowJsonModal] = useState(false);
+  const [adminTestData, setAdminTestData] = useState(null);
+  const [adminError, setAdminError] = useState(null);
+  const [adminLoading, setAdminLoading] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
+  const [toastType, setToastType] = useState("success");
   const [showToast, setShowToast] = useState(false);
 
-  const triggerToast = (msg) => {
+  const triggerToast = (msg, type = "success") => {
     setToastMessage(msg);
+    setToastType(type);
     setShowToast(true);
-    setTimeout(() => setShowToast(false), 3000);
+    setTimeout(() => setShowToast(false), 3500);
   };
 
-  // G?i API /api/auth/admin/dashboard d? ki?m tra quy?n và l?y d? li?u qu?n tr?
-  const fetchAdminDashboard = async () => {
-    setLoadingAdmin(true);
+  const isAdmin = user?.role === "admin";
+  const userInitials = (user?.name || "User")
+    .split(" ")
+    .filter(Boolean)
+    .map((n) => n[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase() || "AS";
+
+  // Thử nghiệm gọi API quản trị viên GET /api/auth/admin/dashboard
+  const handleTestAdminEndpoint = async () => {
+    setAdminLoading(true);
     setAdminError(null);
+    setAdminTestData(null);
+
     try {
-      const data = await authApi.getAdminDashboard();
-      setAdminData(data);
+      const res = await authApi.getAdminDashboard();
+      setAdminTestData(res);
+      setShowSimModal(true);
+      triggerToast(res?.message || "Admin Telemetry retrieved successfully!", "success");
     } catch (err) {
-      console.warn("Admin Dashboard fetch error:", err);
+      console.warn("RBAC Admin Route Verification:", err);
       setAdminError(err);
+      setShowSimModal(true);
+      triggerToast(err?.message || "Truy cập bị từ chối (403 Forbidden)", "error");
     } finally {
-      setLoadingAdmin(false);
+      setAdminLoading(false);
     }
   };
 
-  useEffect(() => {
-    fetchAdminDashboard();
-  }, []);
-
-  const stats = [
-    {
-      title: "Active Authenticated Principal",
-      value: user?.name || "Anonymous",
-      change: user?.role === "admin" ? "Role: ADMIN (Full Control)" : "Role: USER (Standard)",
-      isPositive: true,
-      icon: "verified_user",
-      accent: "text-[#8083ff]",
-    },
-    {
-      title: "Backend Cluster Route",
-      value: "GET /api/auth/admin/dashboard",
-      change: adminData ? "Status: 200 OK Authorized" : adminError ? `Status: ${adminError.statusCode || 403} Denied` : "Checking auth status...",
-      isPositive: !!adminData,
-      icon: "admin_panel_settings",
-      accent: "text-[#4edea3]",
-    },
-    {
-      title: "Active Identity Claim",
-      value: user?.email || "unregistered",
-      change: "JWT Bearer Token Attached",
-      isPositive: true,
-      icon: "alternate_email",
-      accent: "text-[#c0c1ff]",
-    },
-    {
-      title: "Security Shield Layer",
-      value: "TLS 1.3 / ed25519",
-      change: "Zero-Trust Enforcement Active",
-      isPositive: true,
-      icon: "lock",
-      accent: "text-[#d0bcff]",
-    },
-  ];
-
   const liveEvents = [
     {
-      id: "EVT-8921",
-      action: "POST /api/auth/login",
-      user: user?.email || "sarah.chen@authshield.io",
-      role: user?.role || "admin",
-      ip: "127.0.0.1 (Local Client)",
-      status: "200 OK",
-      success: true,
-      time: "Just now",
-    },
-    {
-      id: "EVT-8920",
-      action: "GET /api/auth/me",
-      user: user?.email || "sarah.chen@authshield.io",
-      role: user?.role || "admin",
-      ip: "127.0.0.1",
-      status: "200 OK",
-      success: true,
-      time: "1m ago",
-    },
-    {
-      id: "EVT-8919",
-      action: "GET /api/auth/admin/dashboard",
-      user: user?.email || "system_audit",
+      id: "evt_9918",
+      action: "JWT Bearer Issuance",
+      user: user?.email || "principal@authshield.io",
       role: user?.role || "user",
-      ip: "127.0.0.1",
-      status: adminData ? "200 OK" : "403 Forbidden",
-      success: !!adminData,
-      time: "2m ago",
+      ip: "127.0.0.1 (Loopback)",
+      status: "200 OK",
+      time: "Vừa xong",
+      success: true,
     },
     {
-      id: "EVT-8918",
-      action: "POST /api/auth/register",
-      user: "new_identity@authshield.io",
-      role: "user",
-      ip: "192.168.1.108",
-      status: "201 Created",
+      id: "evt_9917",
+      action: "Profile Introspection (/api/auth/me)",
+      user: user?.email || "principal@authshield.io",
+      role: user?.role || "user",
+      ip: "127.0.0.1 (Loopback)",
+      status: "200 OK",
+      time: "1 phút trước",
       success: true,
-      time: "5m ago",
+    },
+    {
+      id: "evt_9916",
+      action: "RBAC Admin Enforcement (/api/auth/admin/dashboard)",
+      user: "guest_probe@scanner.net",
+      role: "anonymous",
+      ip: "198.51.100.44",
+      status: "401 Unauthorized",
+      time: "4 phút trước",
+      success: false,
+    },
+    {
+      id: "evt_9915",
+      action: "Google Identity OAuth2 Exchange",
+      user: "dev-lead@authshield.io",
+      role: "admin",
+      ip: "10.0.4.12",
+      status: "200 OK",
+      time: "12 phút trước",
+      success: true,
     },
   ];
 
   return (
-    <div className="space-y-6">
-      {/* Top Banner with Real-time API Connection Status */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2 text-xs font-mono text-[#908fa0]">
-            <span>CONTROL PLANE</span>
-            <span>/</span>
-            <span className="text-[#8083ff]">API TELEMETRY & SECURITY</span>
+    <div className="space-y-6 animate-in fade-in duration-300">
+      {/* Top Banner: Status & User Info */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-6 rounded-3xl bg-gradient-to-r from-[#FFEBF1] via-[#FFF0F5] to-[#FFFFFF] border border-[#FAD6DF] shadow-[0_8px_24px_rgba(233,114,150,0.08)]">
+        <div className="flex items-center gap-4">
+          <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-[#FF8DA1] to-[#FF69B4] text-white flex items-center justify-center font-headline font-bold text-xl shadow-[0_4px_14px_rgba(255,105,180,0.35)] shrink-0">
+            {userInitials}
           </div>
-          <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-bold font-headline text-[#dae2fd] tracking-tight">
-              Security & Identity Dashboard
-            </h1>
-            <Badge variant="cluster" icon={<span className="w-1.5 h-1.5 rounded-full bg-[#4edea3] animate-pulse inline-block" />}>
-              API Connected
-            </Badge>
+          <div>
+            <div className="flex items-center gap-2">
+              <h2 className="text-xl font-bold font-headline text-[#4A353A]">
+                Xin chào, {user?.name || "Principal"}
+              </h2>
+              <Badge variant={isAdmin ? "admin" : "user"}>
+                {isAdmin ? "ADMINISTRATOR" : "STANDARD USER"}
+              </Badge>
+            </div>
+            <p className="text-xs text-[#7D676E] mt-0.5">
+              Email: <span className="font-mono text-[#4A353A] font-semibold">{user?.email || "Chưa xác thực"}</span> • Token Type: <span className="font-mono text-[#D84A75] font-semibold">Bearer (HMAC-SHA256)</span>
+            </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2.5">
+        <div className="flex flex-wrap items-center gap-2.5">
           <Button
             variant="secondary"
             size="sm"
             onClick={() => setShowJsonModal(true)}
             icon={<span className="material-symbols-outlined text-[16px]">code</span>}
           >
-            OpenAPI Specs
+            OpenAPI Spec
           </Button>
+
           <Button
-            variant="primary"
+            variant={isAdmin ? "admin" : "secondary"}
             size="sm"
-            onClick={fetchAdminDashboard}
-            disabled={loadingAdmin}
-            icon={<span className="material-symbols-outlined text-[16px]">sync</span>}
+            isLoading={adminLoading}
+            onClick={handleTestAdminEndpoint}
+            icon={<span className="material-symbols-outlined text-[16px]">verified_user</span>}
           >
-            {loadingAdmin ? "Testing..." : "Test GET /admin/dashboard"}
+            Test Admin RBAC (/admin/dashboard)
           </Button>
         </div>
       </div>
 
-      {/* Admin Protected Endpoint Status Banner */}
-      {adminData && (
-        <div className="p-4 rounded-xl bg-[#00885d]/15 border border-[#4edea3]/40 flex items-center justify-between gap-4 animate-in fade-in">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#00885d]/30 text-[#4edea3] flex items-center justify-center font-bold">
-              <span className="material-symbols-outlined">admin_panel_settings</span>
-            </div>
-            <div>
-              <p className="text-xs font-bold text-[#4edea3] uppercase tracking-wider font-mono">
-                Admin Privilege Verified (`GET /api/auth/admin/dashboard`)
-              </p>
-              <p className="text-xs text-[#dae2fd]">
-                {adminData?.message || "Chào m?ng Admin. Ðây là d? li?u tuy?t m?t."}
-              </p>
-            </div>
-          </div>
-          <Badge variant="admin">ADMIN AUTHORIZED</Badge>
-        </div>
-      )}
-
-      {adminError && (
-        <div className="p-4 rounded-xl bg-[#93000a]/15 border border-[#ffb4ab]/40 flex flex-col sm:flex-row sm:items-center justify-between gap-4 animate-in fade-in">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#93000a]/30 text-[#ffb4ab] flex items-center justify-center font-bold shrink-0">
-              <span className="material-symbols-outlined">lock_clock</span>
-            </div>
-            <div>
-              <p className="text-xs font-bold text-[#ffb4ab] uppercase tracking-wider font-mono">
-                {adminError.statusCode === 403 ? "403 Forbidden - Role Restriction" : `${adminError.statusCode || 401} Unauthorized`}
-              </p>
-              <p className="text-xs text-[#c7c4d7]">
-                {adminError.message || "B?n không có quy?n truy c?p route /api/auth/admin/dashboard (C?n tài kho?n có role: admin)."}
-              </p>
-            </div>
-          </div>
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={() => setShowSimModal(true)}
-            className="self-start sm:self-auto"
-          >
-            Inspect 403 Audit
-          </Button>
-        </div>
-      )}
-
-      {/* 4 Primary Metric Cards */}
+      {/* Metrics Row (Pastel Pink) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {stats.map((stat, idx) => (
-          <Card key={idx} className="hover:border-[#8083ff]/40 transition-colors">
-            <div className="flex items-start justify-between">
-              <span className="text-xs font-medium text-[#908fa0]">{stat.title}</span>
-              <span className={`material-symbols-outlined ${stat.accent} text-[20px]`}>
-                {stat.icon}
-              </span>
-            </div>
-            <div className="mt-3">
-              <p className="text-lg font-bold font-headline text-[#dae2fd] tracking-tight truncate">
-                {stat.value}
-              </p>
-              <p className="text-[11px] font-mono text-[#908fa0] mt-1 truncate">
-                {stat.change}
-              </p>
-            </div>
-          </Card>
-        ))}
+        <Card hover>
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold uppercase tracking-wider text-[#7D676E]">
+              Active Principals
+            </span>
+            <span className="p-2 rounded-xl bg-[#FFEBF1] text-[#D84A75]">
+              <span className="material-symbols-outlined text-[18px]">group</span>
+            </span>
+          </div>
+          <div className="mt-3 flex items-baseline gap-2">
+            <span className="text-2xl font-bold text-[#4A353A] font-headline">12,480</span>
+            <span className="text-xs font-bold text-[#1B7A5C] flex items-center">
+              <span className="material-symbols-outlined text-[14px]">trending_up</span> +14.2%
+            </span>
+          </div>
+          <p className="text-[11px] text-[#7D676E] mt-1 font-mono">Real-time JWT sessions</p>
+        </Card>
+
+        <Card hover>
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold uppercase tracking-wider text-[#7D676E]">
+              Token Invocations
+            </span>
+            <span className="p-2 rounded-xl bg-[#E8F8F5] text-[#1B7A5C]">
+              <span className="material-symbols-outlined text-[18px]">bolt</span>
+            </span>
+          </div>
+          <div className="mt-3 flex items-baseline gap-2">
+            <span className="text-2xl font-bold text-[#4A353A] font-headline">99.98%</span>
+            <Badge variant="success" className="text-[10px]">HEALTHY</Badge>
+          </div>
+          <p className="text-[11px] text-[#7D676E] mt-1 font-mono">HMAC signature success rate</p>
+        </Card>
+
+        <Card hover>
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold uppercase tracking-wider text-[#7D676E]">
+              API Response Latency
+            </span>
+            <span className="p-2 rounded-xl bg-[#FFF8E6] text-[#B45309]">
+              <span className="material-symbols-outlined text-[18px]">speed</span>
+            </span>
+          </div>
+          <div className="mt-3 flex items-baseline gap-2">
+            <span className="text-2xl font-bold text-[#4A353A] font-headline">18 ms</span>
+            <span className="text-xs text-[#7D676E] font-mono">p99 avg</span>
+          </div>
+          <p className="text-[11px] text-[#7D676E] mt-1 font-mono">Express Node.js cluster</p>
+        </Card>
+
+        <Card hover>
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold uppercase tracking-wider text-[#7D676E]">
+              RBAC Threat Level
+            </span>
+            <span className="p-2 rounded-xl bg-[#FFEBF0] text-[#C8234D]">
+              <span className="material-symbols-outlined text-[18px]">security</span>
+            </span>
+          </div>
+          <div className="mt-3 flex items-baseline gap-2">
+            <span className="text-2xl font-bold text-[#1B7A5C] font-headline">LOW</span>
+            <span className="text-xs text-[#7D676E]">0 active breaches</span>
+          </div>
+          <p className="text-[11px] text-[#7D676E] mt-1 font-mono">403 guard-rails active</p>
+        </Card>
       </div>
 
-      {/* Grid Row 2: API Endpoints Health & Interactive Test Suite */}
+      {/* Main Row: RBAC Status Box & API Architecture */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left 7 cols: Connected API Routes Matrix */}
-        <Card className="lg:col-span-7">
-          <CardHeader>
-            <div>
-              <CardTitle>API Endpoints Integration Matrix</CardTitle>
-              <CardDescription>All 6 endpoints mapped from API_DOCUMENTATION.md</CardDescription>
-            </div>
-            <span className="material-symbols-outlined text-[#8083ff]">api</span>
-          </CardHeader>
+        {/* API Architecture Overview */}
+        <div className="lg:col-span-7 space-y-6">
+          <Card>
+            <CardHeader>
+              <div>
+                <CardTitle>Auth & Security Architecture</CardTitle>
+                <CardDescription>
+                  Tổng quan về cơ chế bảo mật và giao thức JWT đang kích hoạt
+                </CardDescription>
+              </div>
+              <Badge variant="cluster">mTLS Active</Badge>
+            </CardHeader>
 
-          <CardContent className="space-y-3">
-            {[
-              {
-                method: "POST",
-                path: "/api/auth/register",
-                auth: "Public",
-                role: "All",
-                desc: "Ðang ký tài kho?n ngu?i dùng m?i (user)",
-                status: "Ready",
-              },
-              {
-                method: "POST",
-                path: "/api/auth/login",
-                auth: "Public",
-                role: "All",
-                desc: "Xác th?c email/password & c?p phát Bearer JWT (1d)",
-                status: "Ready",
-              },
-              {
-                method: "GET",
-                path: "/api/auth/me",
-                auth: "Bearer JWT",
-                role: "All",
-                desc: "L?y thông tin tài kho?n ngu?i dùng hi?n t?i",
-                status: "Ready",
-              },
-              {
-                method: "PUT",
-                path: "/api/auth/change-password",
-                auth: "Bearer JWT",
-                role: "All",
-                desc: "Ð?i m?t kh?u tài kho?n dang dang nh?p",
-                status: "Ready",
-              },
-              {
-                method: "POST",
-                path: "/api/auth/logout",
-                auth: "Optional",
-                role: "All",
-                desc: "Thông báo dang xu?t & h?y token client-side",
-                status: "Ready",
-              },
-              {
-                method: "GET",
-                path: "/api/auth/admin/dashboard",
-                auth: "Bearer JWT",
-                role: "admin",
-                desc: "Trang d? li?u qu?n tr? dành riêng cho Admin",
-                status: adminData ? "Authorized" : "Guarded (Admin)",
-              },
-            ].map((route, i) => (
-              <div
-                key={i}
-                className="p-3 rounded-xl bg-[#060e20] border border-[#464554]/30 flex flex-col sm:flex-row sm:items-center justify-between gap-2"
-              >
-                <div className="flex items-center gap-2.5">
-                  <span
-                    className={`font-mono text-[10px] font-bold px-2 py-0.5 rounded ${
-                      route.method === "GET"
-                        ? "bg-[#00885d]/20 text-[#4edea3] border border-[#4edea3]/30"
-                        : route.method === "POST"
-                        ? "bg-[#8083ff]/20 text-[#c0c1ff] border border-[#8083ff]/30"
-                        : "bg-[#d0bcff]/20 text-[#d0bcff] border border-[#d0bcff]/30"
-                    }`}
-                  >
-                    {route.method}
-                  </span>
-                  <div>
-                    <p className="font-mono text-xs font-semibold text-[#dae2fd]">{route.path}</p>
-                    <p className="text-[11px] text-[#908fa0]">{route.desc}</p>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                <div className="p-3.5 rounded-2xl bg-[#FFF0F5] border border-[#FAD6DF] space-y-1">
+                  <div className="flex items-center justify-between font-bold text-[#4A353A]">
+                    <span>POST /api/auth/login</span>
+                    <Badge variant="success" className="text-[9px]">200 OK</Badge>
                   </div>
+                  <p className="text-[#7D676E] text-[11px]">
+                    Xác thực thông tin và cấp phát Access Token 24h.
+                  </p>
                 </div>
 
-                <div className="flex items-center gap-2 shrink-0">
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#222a3d] text-[#c7c4d7]">
-                    Auth: {route.auth}
+                <div className="p-3.5 rounded-2xl bg-[#FFF0F5] border border-[#FAD6DF] space-y-1">
+                  <div className="flex items-center justify-between font-bold text-[#4A353A]">
+                    <span>POST /api/auth/register</span>
+                    <Badge variant="primary" className="text-[9px]">201 CREATED</Badge>
+                  </div>
+                  <p className="text-[#7D676E] text-[11px]">
+                    Đăng ký tài khoản mới với vai trò mặc định `role: "user"`.
+                  </p>
+                </div>
+
+                <div className="p-3.5 rounded-2xl bg-[#FFF0F5] border border-[#FAD6DF] space-y-1">
+                  <div className="flex items-center justify-between font-bold text-[#4A353A]">
+                    <span>GET /api/auth/me</span>
+                    <Badge variant="user" className="text-[9px]">BEARER AUTH</Badge>
+                  </div>
+                  <p className="text-[#7D676E] text-[11px]">
+                    Lấy thông tin tài khoản hiện tại từ JWT Header.
+                  </p>
+                </div>
+
+                <div className="p-3.5 rounded-2xl bg-[#FFF0F5] border border-[#FAD6DF] space-y-1">
+                  <div className="flex items-center justify-between font-bold text-[#4A353A]">
+                    <span>GET /admin/dashboard</span>
+                    <Badge variant="admin" className="text-[9px]">ADMIN ONLY</Badge>
+                  </div>
+                  <p className="text-[#7D676E] text-[11px]">
+                    Endpoint quản trị viên tối mật, chặn quyền role `user` (403).
+                  </p>
+                </div>
+              </div>
+
+              {/* Endpoint Live Test Trigger Banner */}
+              <div className="p-4 rounded-2xl bg-gradient-to-r from-[#FFF0F5] to-[#FFEBF1] border border-[#FAD6DF] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div>
+                  <h4 className="text-xs font-bold text-[#4A353A]">
+                    Kiểm tra phân quyền tài khoản hiện tại ({user?.role?.toUpperCase()})
+                  </h4>
+                  <p className="text-[11px] text-[#7D676E] mt-0.5">
+                    Gửi request trực tiếp đến route quản trị viên để kiểm tra tính toàn vẹn RBAC.
+                  </p>
+                </div>
+                <Button
+                  size="sm"
+                  variant={isAdmin ? "admin" : "primary"}
+                  isLoading={adminLoading}
+                  onClick={handleTestAdminEndpoint}
+                  className="shrink-0"
+                  icon={<span className="material-symbols-outlined text-[16px]">bolt</span>}
+                >
+                  Gửi Request RBAC
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* User Identity Details & Quick Links */}
+        <div className="lg:col-span-5 space-y-6">
+          <Card>
+            <CardHeader>
+              <div>
+                <CardTitle>Phiên làm việc hiện tại</CardTitle>
+                <CardDescription>Thông tin định danh và quyền hạn</CardDescription>
+              </div>
+              <Badge variant={isAdmin ? "admin" : "user"}>
+                {user?.role || "GUEST"}
+              </Badge>
+            </CardHeader>
+
+            <CardContent className="space-y-4 text-xs">
+              <div className="space-y-2.5">
+                <div className="flex justify-between py-1.5 border-b border-[#FAD6DF]">
+                  <span className="text-[#7D676E]">User ID:</span>
+                  <span className="font-mono text-[#4A353A] font-semibold">{user?._id || "N/A"}</span>
+                </div>
+                <div className="flex justify-between py-1.5 border-b border-[#FAD6DF]">
+                  <span className="text-[#7D676E]">Họ và Tên:</span>
+                  <span className="font-bold text-[#4A353A]">{user?.name || "Anonymous"}</span>
+                </div>
+                <div className="flex justify-between py-1.5 border-b border-[#FAD6DF]">
+                  <span className="text-[#7D676E]">Email:</span>
+                  <span className="font-mono text-[#4A353A] font-semibold">{user?.email || "None"}</span>
+                </div>
+                <div className="flex justify-between py-1.5 border-b border-[#FAD6DF]">
+                  <span className="text-[#7D676E]">Quyền hạn (Role):</span>
+                  <span className="font-bold text-[#D84A75] uppercase">{user?.role || "user"}</span>
+                </div>
+                <div className="flex justify-between py-1.5">
+                  <span className="text-[#7D676E]">Khởi tạo vào:</span>
+                  <span className="text-[#4A353A] font-medium">
+                    {user?.createdAt ? new Date(user.createdAt).toLocaleString("vi-VN") : "Gần đây"}
                   </span>
-                  <Badge variant={route.role === "admin" ? "admin" : "user"}>
-                    {route.role}
-                  </Badge>
                 </div>
               </div>
-            ))}
-          </CardContent>
-        </Card>
 
-        {/* Right 5 cols: Live Configuration & Quick Testing Actions */}
-        <Card className="lg:col-span-5 space-y-4">
-          <CardHeader>
-            <div>
-              <CardTitle>API Client Configuration</CardTitle>
-              <CardDescription>Runtime environment & parameters</CardDescription>
-            </div>
-            <span className="material-symbols-outlined text-[#8083ff]">settings_ethernet</span>
-          </CardHeader>
-
-          <CardContent className="space-y-4">
-            <div className="p-3.5 rounded-xl bg-[#060e20] border border-[#464554]/40 font-mono text-xs space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-[#908fa0]">VITE_API_BASE_URL:</span>
-                <span className="text-[#4edea3] font-semibold">
-                  {import.meta.env.VITE_API_BASE_URL || "http://localhost:3001"}
-                </span>
+              <div className="pt-2 flex items-center gap-2">
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  className="w-full"
+                  onClick={() => onNavigate?.("/profile")}
+                  icon={<span className="material-symbols-outlined text-[16px]">lock_reset</span>}
+                >
+                  Đổi mật khẩu
+                </Button>
+                {isAdmin && (
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    className="w-full"
+                    onClick={() => onNavigate?.("/users")}
+                    icon={<span className="material-symbols-outlined text-[16px]">manage_accounts</span>}
+                  >
+                    Quản lý RBAC
+                  </Button>
+                )}
               </div>
-              <div className="flex items-center justify-between">
-                <span className="text-[#908fa0]">Auth Token Storage:</span>
-                <span className="text-[#c0c1ff]">localStorage['token']</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-[#908fa0]">Header Schema:</span>
-                <span className="text-[#c0c1ff]">Authorization: Bearer &lt;jwt&gt;</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-[#908fa0]">Token Expiration:</span>
-                <span className="text-[#dae2fd]">1 Day (1d)</span>
-              </div>
-            </div>
-
-            <div className="space-y-2 pt-2">
-              <Button
-                variant="secondary"
-                className="w-full justify-center"
-                onClick={() => onNavigate?.("/profile")}
-                icon={<span className="material-symbols-outlined text-[16px]">manage_accounts</span>}
-              >
-                Test Profile & Change Password (PUT)
-              </Button>
-              <Button
-                variant="secondary"
-                className="w-full justify-center"
-                onClick={() => onNavigate?.("/users")}
-                icon={<span className="material-symbols-outlined text-[16px]">shield_person</span>}
-              >
-                Inspect RBAC User Directory
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </div>
       </div>
 
-      {/* Bottom Section: Telemetry Event Log */}
-      <Card>
+      {/* Live Security Audit Logs Table */}
+      <Card id="logs">
         <CardHeader>
           <div>
-            <CardTitle>Real-time Authentication Audit Log</CardTitle>
-            <CardDescription>Live telemetry stream of token issues, validations, and requests</CardDescription>
+            <CardTitle>Live Security Telemetry & Audit Trail</CardTitle>
+            <CardDescription>
+              Các sự kiện xác thực JWT và kiểm tra quyền RBAC theo thời gian thực
+            </CardDescription>
           </div>
-          <span className="material-symbols-outlined text-[#8083ff]">terminal</span>
+          <Badge variant="cluster">LIVE STREAM</Badge>
         </CardHeader>
 
         <CardContent>
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
+            <table className="w-full text-left text-xs text-[#4A353A]">
               <thead>
-                <tr className="border-b border-[#464554]/40 font-mono text-[#908fa0]">
-                  <th className="pb-3 font-semibold">EVENT ID</th>
-                  <th className="pb-3 font-semibold">API ENDPOINT</th>
-                  <th className="pb-3 font-semibold">PRINCIPAL</th>
-                  <th className="pb-3 font-semibold">ROLE</th>
-                  <th className="pb-3 font-semibold">CLIENT IP</th>
-                  <th className="pb-3 font-semibold">RESPONSE</th>
-                  <th className="pb-3 font-semibold text-right">TIMESTAMP</th>
+                <tr className="border-b border-[#FAD6DF] text-[#7D676E]">
+                  <th className="pb-3 font-bold">EVENT ID</th>
+                  <th className="pb-3 font-bold">ACTION / ENDPOINT</th>
+                  <th className="pb-3 font-bold">PRINCIPAL</th>
+                  <th className="pb-3 font-bold">ROLE</th>
+                  <th className="pb-3 font-bold">CLIENT IP</th>
+                  <th className="pb-3 font-bold">RESPONSE</th>
+                  <th className="pb-3 font-bold text-right">TIMESTAMP</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#464554]/20 font-mono">
+              <tbody className="divide-y divide-[#FAD6DF]/60 font-mono">
                 {liveEvents.map((evt) => (
-                  <tr key={evt.id} className="hover:bg-[#171f33]/40 transition-colors">
-                    <td className="py-3 text-[#8083ff] font-semibold">{evt.id}</td>
-                    <td className="text-[#dae2fd]">{evt.action}</td>
-                    <td className="text-[#c7c4d7]">{evt.user}</td>
+                  <tr key={evt.id} className="hover:bg-[#FFF0F5] transition-colors">
+                    <td className="py-3 text-[#D84A75] font-bold">{evt.id}</td>
+                    <td className="text-[#4A353A] font-sans font-medium">{evt.action}</td>
+                    <td className="text-[#7D676E]">{evt.user}</td>
                     <td>
                       <Badge variant={evt.role === "admin" ? "admin" : "user"}>
                         {evt.role.toUpperCase()}
                       </Badge>
                     </td>
-                    <td className="text-[#908fa0]">{evt.ip}</td>
+                    <td className="text-[#967C84]">{evt.ip}</td>
                     <td>
                       <span
-                        className={`inline-flex items-center gap-1 font-semibold ${
-                          evt.success ? "text-[#4edea3]" : "text-[#ffb4ab]"
+                        className={`inline-flex items-center gap-1 font-bold ${
+                          evt.success ? "text-[#1B7A5C]" : "text-[#C8234D]"
                         }`}
                       >
                         <span className="material-symbols-outlined text-[14px]">
@@ -429,7 +409,7 @@ export function DashboardPage({ user, onNavigate }) {
                         {evt.status}
                       </span>
                     </td>
-                    <td className="text-right text-[#908fa0]">{evt.time}</td>
+                    <td className="text-right text-[#967C84] font-sans">{evt.time}</td>
                   </tr>
                 ))}
               </tbody>
@@ -438,41 +418,59 @@ export function DashboardPage({ user, onNavigate }) {
         </CardContent>
       </Card>
 
-      {/* MODAL 1: Simulated 403 Response */}
+      {/* MODAL 1: Simulated / Live RBAC Response (Admin vs User) */}
       <Modal
         isOpen={showSimModal}
         onClose={() => setShowSimModal(false)}
-        title="403 Forbidden RBAC Inspection"
-        subtitle="Verification of Role-Based Access Control (RBAC) guard rails"
+        title="RBAC Authorization Inspection"
+        subtitle="Kết quả kiểm tra Role-Based Access Control tại GET /api/auth/admin/dashboard"
         footer={
           <Button variant="secondary" onClick={() => setShowSimModal(false)}>
-            Dismiss
+            Đóng cửa sổ
           </Button>
         }
       >
         <div className="space-y-4">
-          <p className="text-xs text-[#c7c4d7]">
-            Protected route{" "}
-            <code className="bg-[#060e20] text-[#c0c1ff] px-1.5 py-0.5 rounded font-mono">
+          <p className="text-xs text-[#7D676E]">
+            Endpoint bảo vệ{" "}
+            <code className="bg-[#FFF0F5] text-[#D84A75] px-1.5 py-0.5 rounded font-mono font-bold border border-[#FAD6DF]">
               GET /api/auth/admin/dashboard
             </code>{" "}
-            requires an authenticated Bearer token whose role is <code className="text-[#4edea3]">admin</code>.
+            yêu cầu JWT Bearer Token với quyền hạn <code className="text-[#1B7A5C] font-bold">role: "admin"</code>.
           </p>
 
-          <div className="p-4 rounded-xl bg-[#060e20] border border-[#ffb4ab]/30 font-mono text-xs text-[#ffb4ab] space-y-1 overflow-x-auto">
-            <p className="text-xs font-bold text-[#ffb4ab]">HTTP/1.1 403 Forbidden</p>
-            <pre className="text-[11px] text-[#ffb4ab]/90">
+          {adminTestData ? (
+            <div className="p-4 rounded-2xl bg-[#E8F8F5] border border-[#B9ECE1] text-xs text-[#1B7A5C] space-y-2">
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-[20px]">verified</span>
+                <p className="font-bold text-sm">HTTP 200 OK - Quyền Admin Hợp Lệ</p>
+              </div>
+              <pre className="text-[12px] bg-white/80 p-3 rounded-xl border border-[#B9ECE1] font-mono text-[#0E6251] overflow-x-auto">
+{JSON.stringify(adminTestData, null, 2)}
+              </pre>
+            </div>
+          ) : (
+            <div className="p-4 rounded-2xl bg-[#FFEBF0] border border-[#FFCCD7] text-xs text-[#C8234D] space-y-2">
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-[20px]">block</span>
+                <p className="font-bold text-sm">HTTP 403 Forbidden - Truy cập bị từ chối</p>
+              </div>
+              <p className="text-[11px] text-[#7D676E]">
+                Tài khoản hiện tại của bạn có quyền <span className="font-bold text-[#D84A75]">`user`</span>, do đó hệ thống chặn quyền truy cập vào bảng điều khiển quản trị.
+              </p>
+              <pre className="text-[12px] bg-white/80 p-3 rounded-xl border border-[#FFCCD7] font-mono text-[#C8234D] overflow-x-auto">
 {JSON.stringify(
   adminError || {
     statusCode: 403,
     error: "Forbidden",
-    message: "B?n không có quy?n truy c?p",
+    message: "Bạn không có quyền truy cập",
   },
   null,
   2
 )}
-            </pre>
-          </div>
+              </pre>
+            </div>
+          )}
         </div>
       </Modal>
 
@@ -481,19 +479,19 @@ export function DashboardPage({ user, onNavigate }) {
         isOpen={showJsonModal}
         onClose={() => setShowJsonModal(false)}
         title="AuthShield API Integration Spec"
-        subtitle="Endpoints and schemas aligned with API_DOCUMENTATION.md"
+        subtitle="Danh sách các endpoints và quy chuẩn tích hợp API Auth"
         footer={
           <Button variant="primary" onClick={() => setShowJsonModal(false)}>
-            Close Spec Viewer
+            Đóng Spec Viewer
           </Button>
         }
       >
-        <div className="p-4 rounded-xl bg-[#060e20] border border-[#464554]/50 font-mono text-xs text-[#c0c1ff] max-h-96 overflow-y-auto">
+        <div className="p-4 rounded-2xl bg-[#FFF0F5] border border-[#FAD6DF] font-mono text-xs text-[#4A353A] max-h-96 overflow-y-auto">
           <pre className="text-[11px] leading-relaxed">
 {`{
   "openapi": "3.1.0",
   "info": {
-    "title": "AuthShield API Auth",
+    "title": "AuthShield Pastel API Auth",
     "version": "1.0.0"
   },
   "servers": [
@@ -506,6 +504,9 @@ export function DashboardPage({ user, onNavigate }) {
     },
     "/api/auth/login": {
       "post": { "summary": "Login user", "body": { "email": "str", "password": "str" } }
+    },
+    "/api/auth/google-login": {
+      "post": { "summary": "Google Firebase Popup OAuth2", "body": { "idToken": "str" } }
     },
     "/api/auth/me": {
       "get": { "summary": "Get authenticated user profile (Bearer Token)" }
@@ -525,7 +526,7 @@ export function DashboardPage({ user, onNavigate }) {
         </div>
       </Modal>
 
-      <Toast show={showToast} message={toastMessage} onClose={() => setShowToast(false)} />
+      <Toast show={showToast} message={toastMessage} type={toastType} onClose={() => setShowToast(false)} />
     </div>
   );
 }

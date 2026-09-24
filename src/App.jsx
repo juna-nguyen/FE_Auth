@@ -1,114 +1,92 @@
-import React, { useState, useEffect } from "react";
+﻿import React, { useState } from "react";
 import AppLayout from "./components/layout/AppLayout";
 import AuthPage from "./pages/Auth";
 import DashboardPage from "./pages/Dashboard";
 import UserManagementPage from "./pages/UserManagement";
 import ProfileSecurityPage from "./pages/ProfileSecurity";
-import { authApi } from "./services/api/apiUser";
-import { getToken, getStoredUser, clearAuth } from "./services/api";
+import Toast from "./components/ui/Toast";
+import { AuthProvider } from "./context/AuthContext";
+import { useAuth } from "./context/useAuth";
 
-export default function App() {
-  const [currentPath, setCurrentPath] = useState("/auth");
-  const [currentUser, setCurrentUser] = useState(() => getStoredUser());
-  const [isInitializing, setIsInitializing] = useState(true);
+function MainApp() {
+  const { user, isAuthenticated, isInitializing, logout, updateUser } = useAuth();
+  const [currentPath, setCurrentPath] = useState("/dashboard");
+  const [toastMessage, setToastMessage] = useState("");
+  const [toastType, setToastType] = useState("info");
+  const [showToast, setShowToast] = useState(false);
 
-  // T? d?ng ki?m tra JWT token vÃƒÂ  fetch thÃƒÂ´ng tin ngu?i dÃƒÂ¹ng t? /api/auth/me khi t?i ?ng d?ng
-  useEffect(() => {
-    const initializeAuth = async () => {
-      const token = getToken();
-      if (!token) {
-        setIsInitializing(false);
-        setCurrentPath("/auth");
-        return;
-      }
+  const showNotification = (msg, type = "info") => {
+    setToastMessage(msg);
+    setToastType(type);
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 3500);
+  };
 
-      try {
-        const data = await authApi.getMe();
-        if (data?.user) {
-          setCurrentUser(data.user);
-          setCurrentPath("/dashboard");
-        } else {
-          clearAuth();
-          setCurrentUser(null);
-          setCurrentPath("/auth");
-        }
-      } catch (err) {
-        console.warn("Session expired or invalid:", err);
-        clearAuth();
-        setCurrentUser(null);
-        setCurrentPath("/auth");
-      } finally {
-        setIsInitializing(false);
-      }
-    };
-
-    initializeAuth();
-  }, []);
+  const effectivePath = isInitializing
+    ? "/auth"
+    : !isAuthenticated && currentPath !== "/auth"
+    ? "/auth"
+    : currentPath;
 
   const handleNavigate = (path) => {
+    const isProtected = path === "/dashboard" || path === "/users" || path === "/profile";
+    if (isProtected && !isAuthenticated) {
+      showNotification("Vui lòng đăng nhập để truy cập tính năng này!", "warning");
+      setCurrentPath("/auth");
+      return;
+    }
+
     setCurrentPath(path);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const handleLoginSuccess = (data) => {
-    if (data?.user) {
-      setCurrentUser(data.user);
-    }
+  const handleLoginSuccess = () => {
+    showNotification("Đăng nhập thành công! Chào mừng trở lại.", "success");
     setCurrentPath("/dashboard");
   };
 
   const handleLogout = async () => {
-    try {
-      await authApi.logout();
-    } catch (e) {
-      console.error("Logout request error:", e);
-    } finally {
-      clearAuth();
-      setCurrentUser(null);
-      setCurrentPath("/auth");
-    }
-  };
-
-  const handleUserUpdate = (updatedUser) => {
-    setCurrentUser(updatedUser);
+    await logout();
+    showNotification("Đã đăng xuất tài khoản an toàn.", "info");
+    setCurrentPath("/auth");
   };
 
   if (isInitializing) {
     return (
-      <div className="min-h-screen bg-[#0b1326] flex flex-col items-center justify-center text-[#dae2fd] space-y-4">
-        <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#8083ff] to-[#571bc1] flex items-center justify-center shadow-[0_0_25px_rgba(128,131,255,0.5)] animate-pulse">
-          <span className="material-symbols-outlined text-white text-[28px]">shield</span>
+      <div className="min-h-screen bg-[#FFF0F5] flex flex-col items-center justify-center text-[#4A353A] space-y-4">
+        <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-[#FF8DA1] to-[#FF69B4] flex items-center justify-center shadow-[0_8px_24px_rgba(255,105,180,0.35)] animate-pulse">
+          <span className="material-symbols-outlined text-white text-[32px]">shield</span>
         </div>
-        <p className="font-mono text-xs text-[#c0c1ff] animate-pulse">
-          Authenticating Zero-Trust Session...
+        <p className="font-mono text-xs font-semibold text-[#D84A75] animate-pulse">
+          Authenticating Pastel Identity Session...
         </p>
       </div>
     );
   }
 
-  const isAuthView = currentPath === "/auth" && !currentUser;
+  const isAuthView = effectivePath === "/auth" && !isAuthenticated;
 
   const renderContent = () => {
-    switch (currentPath) {
+    switch (effectivePath) {
       case "/auth":
         return <AuthPage onLoginSuccess={handleLoginSuccess} />;
       case "/dashboard":
       case "/dashboard#logs":
       case "/dashboard#api":
-        return <DashboardPage user={currentUser} onNavigate={handleNavigate} />;
+        return <DashboardPage user={user} onNavigate={handleNavigate} />;
       case "/users":
-        return <UserManagementPage currentUser={currentUser} />;
+        return <UserManagementPage currentUser={user} />;
       case "/profile":
         return (
           <ProfileSecurityPage
-            user={currentUser}
-            onUserUpdate={handleUserUpdate}
+            user={user}
+            onUserUpdate={updateUser}
             onLogout={handleLogout}
           />
         );
       default:
-        return currentUser ? (
-          <DashboardPage user={currentUser} onNavigate={handleNavigate} />
+        return isAuthenticated ? (
+          <DashboardPage user={user} onNavigate={handleNavigate} />
         ) : (
           <AuthPage onLoginSuccess={handleLoginSuccess} />
         );
@@ -117,13 +95,29 @@ export default function App() {
 
   return (
     <AppLayout
-      currentPath={currentPath}
+      currentPath={effectivePath}
       onNavigate={handleNavigate}
-      user={currentUser}
+      user={user}
+      isAuthenticated={isAuthenticated}
       onLogout={handleLogout}
+      onRequireAuthNotice={(msg) => showNotification(msg, "warning")}
       hideSidebar={isAuthView}
     >
       {renderContent()}
+      <Toast
+        show={showToast}
+        message={toastMessage}
+        type={toastType}
+        onClose={() => setShowToast(false)}
+      />
     </AppLayout>
+  );
+}
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <MainApp />
+    </AuthProvider>
   );
 }

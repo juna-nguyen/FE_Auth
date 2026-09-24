@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Core API Client with JWT Bearer token management, request/response interceptors, and error handling.
  */
 
@@ -107,7 +107,7 @@ export async function apiRequest(endpoint, options = {}) {
             : response.status === 409
             ? "Conflict: Dữ liệu đã tồn tại"
             : `Lỗi máy chủ (${response.status})`),
-        error: data?.error || "Error",
+        error: data?.error || (response.status === 403 ? "Forbidden" : response.status === 401 ? "Unauthorized" : "Error"),
         ...data,
       };
 

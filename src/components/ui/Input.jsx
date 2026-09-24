@@ -1,4 +1,4 @@
-import React, { forwardRef } from "react";
+﻿import React, { forwardRef } from "react";
 
 export const Input = forwardRef(function Input(
   {
@@ -22,16 +22,16 @@ export const Input = forwardRef(function Input(
       {label && (
         <label
           htmlFor={inputId}
-          className="text-xs font-semibold uppercase tracking-wider text-[#dae2fd]/80 select-none flex items-center justify-between"
+          className="text-xs font-bold uppercase tracking-wider text-[#4A353A] select-none flex items-center justify-between"
         >
           <span>{label}</span>
-          {hint && <span className="text-[11px] font-normal lowercase text-[#908fa0]">{hint}</span>}
+          {hint && <span className="text-[11px] font-normal lowercase text-[#7D676E]">{hint}</span>}
         </label>
       )}
 
       <div className="relative flex items-center w-full">
         {iconLeft && (
-          <div className="absolute left-3.5 flex items-center pointer-events-none text-[#908fa0]">
+          <div className="absolute left-3.5 flex items-center pointer-events-none text-[#967C84]">
             {iconLeft}
           </div>
         )}
@@ -40,22 +40,27 @@ export const Input = forwardRef(function Input(
           ref={ref}
           id={inputId}
           type={type}
-          className={`w-full bg-[#060e20]/70 border border-[#464554]/50 rounded-lg text-sm text-[#dae2fd] placeholder-[#908fa0]/60 transition-all duration-200 focus:outline-none focus:border-[#8083ff] focus:ring-2 focus:ring-[#8083ff]/20 ${
+          className={`w-full bg-[#FFFFFF] border border-[#FAD6DF] rounded-xl text-sm text-[#4A353A] placeholder-[#B89CA4] transition-all duration-200 focus:outline-none focus:border-[#FF8DA1] focus:ring-3 focus:ring-[#FF8DA1]/20 ${
             iconLeft ? "pl-10" : "pl-3.5"
-          } ${iconRight ? "pr-10" : "pr-3.5"} py-2.5 ${
-            error ? "border-[#ffb4ab] focus:border-[#ffb4ab] focus:ring-[#ffb4ab]/20" : ""
+          } ${iconRight ? "pr-10" : "pr-3.5"} py-2.5 shadow-2xs ${
+            error ? "border-[#E63946] focus:border-[#E63946] focus:ring-[#E63946]/20" : ""
           } ${className}`}
           {...props}
         />
 
         {iconRight && (
-          <div className="absolute right-3.5 flex items-center text-[#908fa0]">
+          <div className="absolute right-3.5 flex items-center text-[#967C84]">
             {iconRight}
           </div>
         )}
       </div>
 
-      {error && <p className="text-xs text-[#ffb4ab] flex items-center gap-1">{error}</p>}
+      {error && (
+        <p className="text-xs text-[#E63946] font-medium flex items-center gap-1 mt-0.5">
+          <span className="material-symbols-outlined text-[14px]">error</span>
+          {error}
+        </p>
+      )}
     </div>
   );
 });
