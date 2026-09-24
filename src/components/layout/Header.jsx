@@ -49,33 +49,16 @@ export function Header({
   return (
     <header className="fixed top-0 left-0 right-0 h-16 z-40 bg-[#FFFFFF]/90 backdrop-blur-xl border-b border-[#FAD6DF] px-4 sm:px-6 flex items-center justify-between shadow-[0_4px_20px_rgba(233,114,150,0.05)]">
       {/* Brand & Status */}
-      <div className="flex items-center gap-4 sm:gap-6">
-        <div
-          className="flex items-center gap-3 cursor-pointer group"
+      <div className="flex items-center gap-3 cursor-pointer group"
           onClick={() => onNavigate?.(isAuthenticated ? "/dashboard" : "/auth")}
         >
           <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#FF8DA1] to-[#FF69B4] flex items-center justify-center shadow-[0_4px_12px_rgba(255,105,180,0.35)] group-hover:scale-105 transition-transform">
             <span className="material-symbols-outlined text-white text-[20px]">shield</span>
           </div>
-          <div className="flex flex-col">
-            <span className="font-headline font-bold text-base tracking-tight text-[#4A353A]">
-              AuthShield
-            </span>
-            <span className="text-[10px] uppercase font-mono tracking-wider text-[#D84A75] font-semibold">
-              Pastel Identity v2.4
-            </span>
-          </div>
-        </div>
-
-        <div className="hidden md:flex items-center gap-2">
-          <Badge variant="cluster" icon={<span className="w-1.5 h-1.5 rounded-full bg-[#1B7A5C] animate-pulse inline-block" />}>
-            CLUSTER ONLINE
-          </Badge>
-          <span className="text-xs font-mono text-[#7D676E] hidden lg:inline">
-            TLS 1.3 • JWT Auth
+          <span className="font-headline font-bold text-base tracking-tight text-[#4A353A]">
+            AuthShield
           </span>
         </div>
-      </div>
 
       {/* Right controls */}
       <div className="flex items-center gap-3">
@@ -128,12 +111,7 @@ export function Header({
 
         {/* Unauthenticated: Guest Mode / Sign In button */}
         {!isAuthenticated ? (
-          <div className="flex items-center gap-2">
-            <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF0F2] border border-[#FAD6DF] text-xs text-[#7D676E]">
-              <span className="w-2 h-2 rounded-full bg-[#D4A5B2]" />
-              <span className="font-medium">Guest Mode</span>
-            </div>
-            <Button
+          <Button
               size="sm"
               variant="primary"
               onClick={() => onNavigate?.("/auth")}
@@ -141,7 +119,6 @@ export function Header({
             >
               Sign In / Register
             </Button>
-          </div>
         ) : (
           /* Authenticated: User Info & Dropdown */
           <div className="relative" ref={dropdownRef}>

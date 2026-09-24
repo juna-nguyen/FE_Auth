@@ -3,7 +3,6 @@ import Button from "../../components/ui/Button";
 import Input from "../../components/ui/Input";
 import GoogleLoginButton from "../../components/GoogleLoginButton";
 import Toast from "../../components/ui/Toast";
-import Badge from "../../components/ui/Badge";
 import { useAuth } from "../../context/useAuth";
 
 export function AuthPage({ onLoginSuccess }) {
@@ -152,7 +151,7 @@ export function AuthPage({ onLoginSuccess }) {
         <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-[#E8A0BF]/25 rounded-full blur-3xl pointer-events-none" />
 
         {/* LEFT COLUMN: Brand Hero & IAM Telemetry (Pastel Pink) */}
-        <div className="lg:col-span-5 p-8 lg:p-10 flex flex-col justify-between relative bg-gradient-to-br from-[#FFF0F5] via-[#FFEBF1] to-[#FAD6DF]/40 border-b lg:border-b-0 lg:border-r border-[#FAD6DF]">
+        <div className="lg:col-span-5 p-8 lg:p-10 flex flex-col justify-center relative bg-gradient-to-br from-[#FFF0F5] via-[#FFEBF1] to-[#FAD6DF]/40 border-b lg:border-b-0 lg:border-r border-[#FAD6DF]">
           <div className="space-y-6">
             {/* Top Brand Tag */}
             <div className="flex items-center gap-3">
@@ -170,10 +169,7 @@ export function AuthPage({ onLoginSuccess }) {
             </div>
 
             {/* Main Headline */}
-            <div className="space-y-2 pt-4">
-              <Badge variant="cluster" icon={<span className="w-1.5 h-1.5 rounded-full bg-[#1B7A5C] animate-pulse inline-block" />}>
-                Zero-Trust Auth Matrix
-              </Badge>
+            <div className="space-y-2">
               <h2 className="text-2xl sm:text-3xl font-bold font-headline text-[#4A353A] leading-tight">
                 Secure Authentication with Pastel Charm.
               </h2>
@@ -214,12 +210,6 @@ export function AuthPage({ onLoginSuccess }) {
                 </div>
               </div>
             </div>
-          </div>
-
-          {/* Footer Security Badge */}
-          <div className="pt-6 mt-6 border-t border-[#FAD6DF] flex items-center justify-between text-[11px] text-[#7D676E] font-mono">
-            <span>TLS 1.3 Strict</span>
-            <span className="text-[#D84A75] font-semibold">Node.js Express + React 19</span>
           </div>
         </div>
 
