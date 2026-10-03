@@ -12,6 +12,7 @@ export default function GoogleLoginButton({ onLoginSuccess, onLoginFailure }) {
     try {
       const result = await signInWithPopup(auth, googleProvider);
       const idToken = await result.user.getIdToken();
+      console.log("🚀 ~ handleLoginGoogle ~ idToken:", idToken);
 
       const data = await authApi.googleLogin({ idToken });
 
@@ -91,7 +92,9 @@ export default function GoogleLoginButton({ onLoginSuccess, onLoginFailure }) {
           />
         </svg>
       )}
-      <span>{loading ? "Đang kết nối Google..." : "Tiếp tục với Google Identity"}</span>
+      <span>
+        {loading ? "Đang kết nối Google..." : "Tiếp tục với Google Identity"}
+      </span>
     </button>
   );
 }
