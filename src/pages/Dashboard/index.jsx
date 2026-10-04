@@ -1,5 +1,10 @@
 import React, { useState } from "react";
-import Card, { CardHeader, CardTitle, CardDescription, CardContent } from "../../components/ui/Card";
+import Card, {
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "../../components/ui/Card";
 import Button from "../../components/ui/Button";
 import Badge from "../../components/ui/Badge";
 import Modal from "../../components/ui/Modal";
@@ -45,13 +50,14 @@ export function DashboardPage({ user, onNavigate }) {
   };
 
   const isAdmin = user?.role === "admin";
-  const userInitials = (user?.name || "User")
-    .split(" ")
-    .filter(Boolean)
-    .map((n) => n[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase() || "AS";
+  const userInitials =
+    (user?.name || "User")
+      .split(" ")
+      .filter(Boolean)
+      .map((n) => n[0])
+      .join("")
+      .slice(0, 2)
+      .toUpperCase() || "AS";
 
   // Thử nghiệm gọi API quản trị viên GET /api/auth/admin/dashboard
   const handleTestAdminEndpoint = async () => {
@@ -63,12 +69,18 @@ export function DashboardPage({ user, onNavigate }) {
       const res = await authApi.getAdminDashboard();
       setAdminTestData(res);
       setShowSimModal(true);
-      triggerToast(res?.message || "Admin Telemetry retrieved successfully!", "success");
+      triggerToast(
+        res?.message || "Admin Telemetry retrieved successfully!",
+        "success",
+      );
     } catch (err) {
       console.warn("RBAC Admin Route Verification:", err);
       setAdminError(err);
       setShowSimModal(true);
-      triggerToast(err?.message || "Truy cập bị từ chối (403 Forbidden)", "error");
+      triggerToast(
+        err?.message || "Truy cập bị từ chối (403 Forbidden)",
+        "error",
+      );
     } finally {
       setAdminLoading(false);
     }
@@ -135,7 +147,14 @@ export function DashboardPage({ user, onNavigate }) {
               </Badge>
             </div>
             <p className="text-xs text-[#7D676E] mt-0.5">
-              Email: <span className="font-mono text-[#4A353A] font-semibold">{user?.email || "Chưa xác thực"}</span> • Token Type: <span className="font-mono text-[#D84A75] font-semibold">Bearer (HMAC-SHA256)</span>
+              Email:{" "}
+              <span className="font-mono text-[#4A353A] font-semibold">
+                {user?.email || "Chưa xác thực"}
+              </span>{" "}
+              • Token Type:{" "}
+              <span className="font-mono text-[#D84A75] font-semibold">
+                Bearer (HMAC-SHA256)
+              </span>
             </p>
           </div>
         </div>
@@ -145,7 +164,11 @@ export function DashboardPage({ user, onNavigate }) {
             variant="secondary"
             size="sm"
             onClick={handleOpenSpec}
-            icon={<span className="material-symbols-outlined text-[16px]">code</span>}
+            icon={
+              <span className="material-symbols-outlined text-[16px]">
+                code
+              </span>
+            }
           >
             OpenAPI Spec
           </Button>
@@ -155,7 +178,11 @@ export function DashboardPage({ user, onNavigate }) {
             size="sm"
             isLoading={adminLoading}
             onClick={handleTestAdminEndpoint}
-            icon={<span className="material-symbols-outlined text-[16px]">verified_user</span>}
+            icon={
+              <span className="material-symbols-outlined text-[16px]">
+                verified_user
+              </span>
+            }
           >
             Kiểm tra quyền Admin
           </Button>
@@ -170,16 +197,25 @@ export function DashboardPage({ user, onNavigate }) {
               Active Principals
             </span>
             <span className="p-2 rounded-xl bg-[#FFEBF1] text-[#D84A75]">
-              <span className="material-symbols-outlined text-[18px]">group</span>
+              <span className="material-symbols-outlined text-[18px]">
+                group
+              </span>
             </span>
           </div>
           <div className="mt-3 flex items-baseline gap-2">
-            <span className="text-2xl font-bold text-[#4A353A] font-headline">12,480</span>
+            <span className="text-2xl font-bold text-[#4A353A] font-headline">
+              12,480
+            </span>
             <span className="text-xs font-bold text-[#1B7A5C] flex items-center">
-              <span className="material-symbols-outlined text-[14px]">trending_up</span> +14.2%
+              <span className="material-symbols-outlined text-[14px]">
+                trending_up
+              </span>{" "}
+              +14.2%
             </span>
           </div>
-          <p className="text-[11px] text-[#7D676E] mt-1 font-mono">Real-time JWT sessions</p>
+          <p className="text-[11px] text-[#7D676E] mt-1 font-mono">
+            Real-time JWT sessions
+          </p>
         </Card>
 
         <Card hover>
@@ -188,14 +224,22 @@ export function DashboardPage({ user, onNavigate }) {
               Token Invocations
             </span>
             <span className="p-2 rounded-xl bg-[#E8F8F5] text-[#1B7A5C]">
-              <span className="material-symbols-outlined text-[18px]">bolt</span>
+              <span className="material-symbols-outlined text-[18px]">
+                bolt
+              </span>
             </span>
           </div>
           <div className="mt-3 flex items-baseline gap-2">
-            <span className="text-2xl font-bold text-[#4A353A] font-headline">99.98%</span>
-            <Badge variant="success" className="text-[10px]">HEALTHY</Badge>
+            <span className="text-2xl font-bold text-[#4A353A] font-headline">
+              99.98%
+            </span>
+            <Badge variant="success" className="text-[10px]">
+              HEALTHY
+            </Badge>
           </div>
-          <p className="text-[11px] text-[#7D676E] mt-1 font-mono">HMAC signature success rate</p>
+          <p className="text-[11px] text-[#7D676E] mt-1 font-mono">
+            HMAC signature success rate
+          </p>
         </Card>
 
         <Card hover>
@@ -204,14 +248,20 @@ export function DashboardPage({ user, onNavigate }) {
               API Response Latency
             </span>
             <span className="p-2 rounded-xl bg-[#FFF8E6] text-[#B45309]">
-              <span className="material-symbols-outlined text-[18px]">speed</span>
+              <span className="material-symbols-outlined text-[18px]">
+                speed
+              </span>
             </span>
           </div>
           <div className="mt-3 flex items-baseline gap-2">
-            <span className="text-2xl font-bold text-[#4A353A] font-headline">18 ms</span>
+            <span className="text-2xl font-bold text-[#4A353A] font-headline">
+              18 ms
+            </span>
             <span className="text-xs text-[#7D676E] font-mono">p99 avg</span>
           </div>
-          <p className="text-[11px] text-[#7D676E] mt-1 font-mono">Express Node.js cluster</p>
+          <p className="text-[11px] text-[#7D676E] mt-1 font-mono">
+            Express Node.js cluster
+          </p>
         </Card>
 
         <Card hover>
@@ -220,14 +270,20 @@ export function DashboardPage({ user, onNavigate }) {
               RBAC Threat Level
             </span>
             <span className="p-2 rounded-xl bg-[#FFEBF0] text-[#C8234D]">
-              <span className="material-symbols-outlined text-[18px]">security</span>
+              <span className="material-symbols-outlined text-[18px]">
+                security
+              </span>
             </span>
           </div>
           <div className="mt-3 flex items-baseline gap-2">
-            <span className="text-2xl font-bold text-[#1B7A5C] font-headline">LOW</span>
+            <span className="text-2xl font-bold text-[#1B7A5C] font-headline">
+              LOW
+            </span>
             <span className="text-xs text-[#7D676E]">0 active breaches</span>
           </div>
-          <p className="text-[11px] text-[#7D676E] mt-1 font-mono">403 guard-rails active</p>
+          <p className="text-[11px] text-[#7D676E] mt-1 font-mono">
+            403 guard-rails active
+          </p>
         </Card>
       </div>
 
@@ -251,7 +307,9 @@ export function DashboardPage({ user, onNavigate }) {
                 <div className="p-3.5 rounded-2xl bg-[#FFF0F5] border border-[#FAD6DF] space-y-1">
                   <div className="flex items-center justify-between font-bold text-[#4A353A]">
                     <span>POST /api/auth/login</span>
-                    <Badge variant="success" className="text-[9px]">200 OK</Badge>
+                    <Badge variant="success" className="text-[9px]">
+                      200 OK
+                    </Badge>
                   </div>
                   <p className="text-[#7D676E] text-[11px]">
                     Xác thực thông tin và cấp phát Access Token 24h.
@@ -261,7 +319,9 @@ export function DashboardPage({ user, onNavigate }) {
                 <div className="p-3.5 rounded-2xl bg-[#FFF0F5] border border-[#FAD6DF] space-y-1">
                   <div className="flex items-center justify-between font-bold text-[#4A353A]">
                     <span>POST /api/auth/register</span>
-                    <Badge variant="primary" className="text-[9px]">201 CREATED</Badge>
+                    <Badge variant="primary" className="text-[9px]">
+                      201 CREATED
+                    </Badge>
                   </div>
                   <p className="text-[#7D676E] text-[11px]">
                     Đăng ký tài khoản mới với vai trò mặc định `role: "user"`.
@@ -271,7 +331,9 @@ export function DashboardPage({ user, onNavigate }) {
                 <div className="p-3.5 rounded-2xl bg-[#FFF0F5] border border-[#FAD6DF] space-y-1">
                   <div className="flex items-center justify-between font-bold text-[#4A353A]">
                     <span>GET /api/auth/me</span>
-                    <Badge variant="user" className="text-[9px]">BEARER AUTH</Badge>
+                    <Badge variant="user" className="text-[9px]">
+                      BEARER AUTH
+                    </Badge>
                   </div>
                   <p className="text-[#7D676E] text-[11px]">
                     Lấy thông tin tài khoản hiện tại từ JWT Header.
@@ -281,10 +343,13 @@ export function DashboardPage({ user, onNavigate }) {
                 <div className="p-3.5 rounded-2xl bg-[#FFF0F5] border border-[#FAD6DF] space-y-1">
                   <div className="flex items-center justify-between font-bold text-[#4A353A]">
                     <span>GET /admin/dashboard</span>
-                    <Badge variant="admin" className="text-[9px]">ADMIN ONLY</Badge>
+                    <Badge variant="admin" className="text-[9px]">
+                      ADMIN ONLY
+                    </Badge>
                   </div>
                   <p className="text-[#7D676E] text-[11px]">
-                    Endpoint quản trị viên tối mật, chặn quyền role `user` (403).
+                    Endpoint quản trị viên tối mật, chặn quyền role `user`
+                    (403).
                   </p>
                 </div>
               </div>
@@ -293,10 +358,12 @@ export function DashboardPage({ user, onNavigate }) {
               <div className="p-4 rounded-2xl bg-gradient-to-r from-[#FFF0F5] to-[#FFEBF1] border border-[#FAD6DF] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
                   <h4 className="text-xs font-bold text-[#4A353A]">
-                    Kiểm tra phân quyền tài khoản hiện tại ({user?.role?.toUpperCase()})
+                    Kiểm tra phân quyền tài khoản hiện tại (
+                    {user?.role?.toUpperCase()})
                   </h4>
                   <p className="text-[11px] text-[#7D676E] mt-0.5">
-                    Gửi request trực tiếp đến route quản trị viên để kiểm tra tính toàn vẹn RBAC.
+                    Gửi request trực tiếp đến route quản trị viên để kiểm tra
+                    tính toàn vẹn RBAC.
                   </p>
                 </div>
                 <Button
@@ -305,7 +372,11 @@ export function DashboardPage({ user, onNavigate }) {
                   isLoading={adminLoading}
                   onClick={handleTestAdminEndpoint}
                   className="shrink-0"
-                  icon={<span className="material-symbols-outlined text-[16px]">bolt</span>}
+                  icon={
+                    <span className="material-symbols-outlined text-[16px]">
+                      bolt
+                    </span>
+                  }
                 >
                   Gửi Request RBAC
                 </Button>
@@ -320,7 +391,9 @@ export function DashboardPage({ user, onNavigate }) {
             <CardHeader>
               <div>
                 <CardTitle>Phiên làm việc hiện tại</CardTitle>
-                <CardDescription>Thông tin định danh và quyền hạn</CardDescription>
+                <CardDescription>
+                  Thông tin định danh và quyền hạn
+                </CardDescription>
               </div>
               <Badge variant={isAdmin ? "admin" : "user"}>
                 {user?.role || "GUEST"}
@@ -331,24 +404,34 @@ export function DashboardPage({ user, onNavigate }) {
               <div className="space-y-2.5">
                 <div className="flex justify-between py-1.5 border-b border-[#FAD6DF]">
                   <span className="text-[#7D676E]">User ID:</span>
-                  <span className="font-mono text-[#4A353A] font-semibold">{user?._id || "N/A"}</span>
+                  <span className="font-mono text-[#4A353A] font-semibold">
+                    {user?._id || "N/A"}
+                  </span>
                 </div>
                 <div className="flex justify-between py-1.5 border-b border-[#FAD6DF]">
                   <span className="text-[#7D676E]">Họ và Tên:</span>
-                  <span className="font-bold text-[#4A353A]">{user?.name || "Anonymous"}</span>
+                  <span className="font-bold text-[#4A353A]">
+                    {user?.name || "Anonymous"}
+                  </span>
                 </div>
                 <div className="flex justify-between py-1.5 border-b border-[#FAD6DF]">
                   <span className="text-[#7D676E]">Email:</span>
-                  <span className="font-mono text-[#4A353A] font-semibold">{user?.email || "None"}</span>
+                  <span className="font-mono text-[#4A353A] font-semibold">
+                    {user?.email || "None"}
+                  </span>
                 </div>
                 <div className="flex justify-between py-1.5 border-b border-[#FAD6DF]">
                   <span className="text-[#7D676E]">Quyền hạn (Role):</span>
-                  <span className="font-bold text-[#D84A75] uppercase">{user?.role || "user"}</span>
+                  <span className="font-bold text-[#D84A75] uppercase">
+                    {user?.role || "user"}
+                  </span>
                 </div>
                 <div className="flex justify-between py-1.5">
                   <span className="text-[#7D676E]">Khởi tạo vào:</span>
                   <span className="text-[#4A353A] font-medium">
-                    {user?.createdAt ? new Date(user.createdAt).toLocaleString("vi-VN") : "Gần đây"}
+                    {user?.createdAt
+                      ? new Date(user.createdAt).toLocaleString("vi-VN")
+                      : "Gần đây"}
                   </span>
                 </div>
               </div>
@@ -359,7 +442,11 @@ export function DashboardPage({ user, onNavigate }) {
                   size="sm"
                   className="w-full"
                   onClick={() => onNavigate?.("/profile")}
-                  icon={<span className="material-symbols-outlined text-[16px]">lock_reset</span>}
+                  icon={
+                    <span className="material-symbols-outlined text-[16px]">
+                      lock_reset
+                    </span>
+                  }
                 >
                   Đổi mật khẩu
                 </Button>
@@ -369,7 +456,11 @@ export function DashboardPage({ user, onNavigate }) {
                     size="sm"
                     className="w-full"
                     onClick={() => onNavigate?.("/users")}
-                    icon={<span className="material-symbols-outlined text-[16px]">manage_accounts</span>}
+                    icon={
+                      <span className="material-symbols-outlined text-[16px]">
+                        manage_accounts
+                      </span>
+                    }
                   >
                     Quản lý RBAC
                   </Button>
@@ -386,7 +477,8 @@ export function DashboardPage({ user, onNavigate }) {
           <div>
             <CardTitle>Live Security Telemetry & Audit Trail</CardTitle>
             <CardDescription>
-              Các sự kiện xác thực JWT và kiểm tra quyền RBAC theo thời gian thực
+              Các sự kiện xác thực JWT và kiểm tra quyền RBAC theo thời gian
+              thực
             </CardDescription>
           </div>
           <Badge variant="cluster">LIVE STREAM</Badge>
@@ -408,9 +500,14 @@ export function DashboardPage({ user, onNavigate }) {
               </thead>
               <tbody className="divide-y divide-[#FAD6DF]/60 font-mono">
                 {liveEvents.map((evt) => (
-                  <tr key={evt.id} className="hover:bg-[#FFF0F5] transition-colors">
+                  <tr
+                    key={evt.id}
+                    className="hover:bg-[#FFF0F5] transition-colors"
+                  >
                     <td className="py-3 text-[#D84A75] font-bold">{evt.id}</td>
-                    <td className="text-[#4A353A] font-sans font-medium">{evt.action}</td>
+                    <td className="text-[#4A353A] font-sans font-medium">
+                      {evt.action}
+                    </td>
                     <td className="text-[#7D676E]">{evt.user}</td>
                     <td>
                       <Badge variant={evt.role === "admin" ? "admin" : "user"}>
@@ -430,7 +527,9 @@ export function DashboardPage({ user, onNavigate }) {
                         {evt.status}
                       </span>
                     </td>
-                    <td className="text-right text-[#967C84] font-sans">{evt.time}</td>
+                    <td className="text-right text-[#967C84] font-sans">
+                      {evt.time}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -457,38 +556,49 @@ export function DashboardPage({ user, onNavigate }) {
             <code className="bg-[#FFF0F5] text-[#D84A75] px-1.5 py-0.5 rounded font-mono font-bold border border-[#FAD6DF]">
               GET /api/auth/admin/dashboard
             </code>{" "}
-            yêu cầu JWT Bearer Token với quyền hạn <code className="text-[#1B7A5C] font-bold">role: "admin"</code>.
+            yêu cầu JWT Bearer Token với quyền hạn{" "}
+            <code className="text-[#1B7A5C] font-bold">role: "admin"</code>.
           </p>
 
           {adminTestData ? (
             <div className="p-4 rounded-2xl bg-[#E8F8F5] border border-[#B9ECE1] text-xs text-[#1B7A5C] space-y-2">
               <div className="flex items-center gap-2">
-                <span className="material-symbols-outlined text-[20px]">verified</span>
-                <p className="font-bold text-sm">HTTP 200 OK - Quyền Admin Hợp Lệ</p>
+                <span className="material-symbols-outlined text-[20px]">
+                  verified
+                </span>
+                <p className="font-bold text-sm">
+                  HTTP 200 OK - Quyền Admin Hợp Lệ
+                </p>
               </div>
               <pre className="text-[12px] bg-white/80 p-3 rounded-xl border border-[#B9ECE1] font-mono text-[#0E6251] overflow-x-auto">
-{JSON.stringify(adminTestData, null, 2)}
+                {JSON.stringify(adminTestData, null, 2)}
               </pre>
             </div>
           ) : (
             <div className="p-4 rounded-2xl bg-[#FFEBF0] border border-[#FFCCD7] text-xs text-[#C8234D] space-y-2">
               <div className="flex items-center gap-2">
-                <span className="material-symbols-outlined text-[20px]">block</span>
-                <p className="font-bold text-sm">HTTP 403 Forbidden - Truy cập bị từ chối</p>
+                <span className="material-symbols-outlined text-[20px]">
+                  block
+                </span>
+                <p className="font-bold text-sm">
+                  HTTP 403 Forbidden - Truy cập bị từ chối
+                </p>
               </div>
               <p className="text-[11px] text-[#7D676E]">
-                Tài khoản hiện tại của bạn có quyền <span className="font-bold text-[#D84A75]">`user`</span>, do đó hệ thống chặn quyền truy cập vào bảng điều khiển quản trị.
+                Tài khoản hiện tại của bạn có quyền{" "}
+                <span className="font-bold text-[#D84A75]">`user`</span>, do đó
+                hệ thống chặn quyền truy cập vào bảng điều khiển quản trị.
               </p>
               <pre className="text-[12px] bg-white/80 p-3 rounded-xl border border-[#FFCCD7] font-mono text-[#C8234D] overflow-x-auto">
-{JSON.stringify(
-  adminError || {
-    statusCode: 403,
-    error: "Forbidden",
-    message: "Bạn không có quyền truy cập",
-  },
-  null,
-  2
-)}
+                {JSON.stringify(
+                  adminError || {
+                    statusCode: 403,
+                    error: "Forbidden",
+                    message: "Bạn không có quyền truy cập",
+                  },
+                  null,
+                  2,
+                )}
               </pre>
             </div>
           )}
@@ -514,9 +624,9 @@ export function DashboardPage({ user, onNavigate }) {
             </div>
           ) : (
             <pre className="text-[11px] leading-relaxed">
-{liveSpec
-  ? JSON.stringify(liveSpec, null, 2)
-  : `{
+              {liveSpec
+                ? JSON.stringify(liveSpec, null, 2)
+                : `{
   "openapi": "3.1.0",
   "info": {
     "title": "AuthShield Pastel API Auth",
@@ -561,7 +671,12 @@ export function DashboardPage({ user, onNavigate }) {
         </div>
       </Modal>
 
-      <Toast show={showToast} message={toastMessage} type={toastType} onClose={() => setShowToast(false)} />
+      <Toast
+        show={showToast}
+        message={toastMessage}
+        type={toastType}
+        onClose={() => setShowToast(false)}
+      />
     </div>
   );
 }

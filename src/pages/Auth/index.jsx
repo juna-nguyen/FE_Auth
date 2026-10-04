@@ -64,12 +64,15 @@ export function AuthPage({ onLoginSuccess }) {
     try {
       const res = await authApi.forgotPassword({ email: forgotEmail.trim() });
       setForgotStatusMsg(
-        res?.message || "Nếu email tồn tại, hướng dẫn đặt lại mật khẩu đã được gửi."
+        res?.message ||
+          "Nếu email tồn tại, hướng dẫn đặt lại mật khẩu đã được gửi.",
       );
       triggerToast("Yêu cầu đã được gửi thành công!", "success");
     } catch (err) {
       console.error("Forgot password error:", err);
-      setForgotErrorMsg(err?.message || "Gửi yêu cầu thất bại. Vui lòng thử lại.");
+      setForgotErrorMsg(
+        err?.message || "Gửi yêu cầu thất bại. Vui lòng thử lại.",
+      );
     } finally {
       setForgotLoading(false);
     }
@@ -103,7 +106,10 @@ export function AuthPage({ onLoginSuccess }) {
         newPassword: resetNewPassword,
       });
 
-      triggerToast(res?.message || "Đặt lại mật khẩu thành công! Vui lòng đăng nhập.", "success");
+      triggerToast(
+        res?.message || "Đặt lại mật khẩu thành công! Vui lòng đăng nhập.",
+        "success",
+      );
       setShowForgotModal(false);
       setResetToken("");
       setResetNewPassword("");
@@ -111,7 +117,10 @@ export function AuthPage({ onLoginSuccess }) {
       setActiveTab("signin");
     } catch (err) {
       console.error("Reset password error:", err);
-      setForgotErrorMsg(err?.message || "Đặt lại mật khẩu thất bại. Token có thể không hợp lệ hoặc đã hết hạn.");
+      setForgotErrorMsg(
+        err?.message ||
+          "Đặt lại mật khẩu thất bại. Token có thể không hợp lệ hoặc đã hết hạn.",
+      );
     } finally {
       setForgotLoading(false);
     }
@@ -129,10 +138,25 @@ export function AuthPage({ onLoginSuccess }) {
   const strengthScore = calculateStrength(regPassword);
 
   const getStrengthLabel = () => {
-    if (!regPassword) return { text: "Chưa nhập", color: "text-[#967C84]", bg: "bg-[#FAD6DF]" };
-    if (strengthScore === 1) return { text: "Yếu (tối thiểu 6 ký tự)", color: "text-[#E63946]", bg: "bg-[#E63946]" };
-    if (strengthScore === 2) return { text: "Trung bình (Khá an toàn)", color: "text-[#D84A75]", bg: "bg-[#FF8DA1]" };
-    return { text: "Rất mạnh (Tối ưu bảo mật)", color: "text-[#1B7A5C]", bg: "bg-[#52B788]" };
+    if (!regPassword)
+      return { text: "Chưa nhập", color: "text-[#967C84]", bg: "bg-[#FAD6DF]" };
+    if (strengthScore === 1)
+      return {
+        text: "Yếu (tối thiểu 6 ký tự)",
+        color: "text-[#E63946]",
+        bg: "bg-[#E63946]",
+      };
+    if (strengthScore === 2)
+      return {
+        text: "Trung bình (Khá an toàn)",
+        color: "text-[#D84A75]",
+        bg: "bg-[#FF8DA1]",
+      };
+    return {
+      text: "Rất mạnh (Tối ưu bảo mật)",
+      color: "text-[#1B7A5C]",
+      bg: "bg-[#52B788]",
+    };
   };
 
   const strengthInfo = getStrengthLabel();
@@ -160,7 +184,9 @@ export function AuthPage({ onLoginSuccess }) {
       }
     } catch (err) {
       console.error("Login API Error:", err);
-      setErrorMessage(err?.message || "Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.");
+      setErrorMessage(
+        err?.message || "Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.",
+      );
     } finally {
       setLoading(false);
     }
@@ -199,14 +225,19 @@ export function AuthPage({ onLoginSuccess }) {
         password: regPassword,
       });
 
-      triggerToast(data?.message || "Đăng ký tài khoản thành công! Vui lòng đăng nhập.", "success");
+      triggerToast(
+        data?.message || "Đăng ký tài khoản thành công! Vui lòng đăng nhập.",
+        "success",
+      );
       // Tự động chuyển qua tab đăng nhập và điền email vừa đăng ký
       setSigninEmail(regEmail.trim());
       setSigninPassword("");
       setActiveTab("signin");
     } catch (err) {
       console.error("Register API Error:", err);
-      setErrorMessage(err?.message || "Đăng ký không thành công. Vui lòng thử lại.");
+      setErrorMessage(
+        err?.message || "Đăng ký không thành công. Vui lòng thử lại.",
+      );
     } finally {
       setLoading(false);
     }
@@ -237,7 +268,9 @@ export function AuthPage({ onLoginSuccess }) {
             {/* Top Brand Tag */}
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#FF8DA1] to-[#FF69B4] flex items-center justify-center shadow-[0_4px_14px_rgba(255,105,180,0.35)]">
-                <span className="material-symbols-outlined text-white text-[24px]">shield</span>
+                <span className="material-symbols-outlined text-white text-[24px]">
+                  shield
+                </span>
               </div>
               <div>
                 <h1 className="font-headline font-bold text-xl tracking-tight text-[#4A353A]">
@@ -255,7 +288,8 @@ export function AuthPage({ onLoginSuccess }) {
                 Secure Authentication with Pastel Charm.
               </h2>
               <p className="text-xs text-[#7D676E] leading-relaxed">
-                Đăng nhập bảo mật với JWT Bearer Tokens, phân quyền RBAC phân cấp cao cấp và xác thực Firebase Google Identity một chạm.
+                Đăng nhập bảo mật với JWT Bearer Tokens, phân quyền RBAC phân
+                cấp cao cấp và xác thực Firebase Google Identity một chạm.
               </p>
             </div>
 
@@ -263,31 +297,49 @@ export function AuthPage({ onLoginSuccess }) {
             <div className="space-y-3 pt-2">
               <div className="flex items-center gap-3 p-3 rounded-2xl bg-[#FFFFFF] border border-[#FAD6DF] shadow-2xs">
                 <div className="w-8 h-8 rounded-xl bg-[#FFEBF1] text-[#D84A75] flex items-center justify-center shrink-0">
-                  <span className="material-symbols-outlined text-[18px]">key</span>
+                  <span className="material-symbols-outlined text-[18px]">
+                    key
+                  </span>
                 </div>
                 <div>
-                  <h4 className="text-xs font-bold text-[#4A353A]">HMAC-SHA256 Bearer Token</h4>
-                  <p className="text-[11px] text-[#7D676E]">Phiên làm việc mã hóa 24h tự động duy trì</p>
+                  <h4 className="text-xs font-bold text-[#4A353A]">
+                    HMAC-SHA256 Bearer Token
+                  </h4>
+                  <p className="text-[11px] text-[#7D676E]">
+                    Phiên làm việc mã hóa 24h tự động duy trì
+                  </p>
                 </div>
               </div>
 
               <div className="flex items-center gap-3 p-3 rounded-2xl bg-[#FFFFFF] border border-[#FAD6DF] shadow-2xs">
                 <div className="w-8 h-8 rounded-xl bg-[#E8F8F5] text-[#1B7A5C] flex items-center justify-center shrink-0">
-                  <span className="material-symbols-outlined text-[18px]">admin_panel_settings</span>
+                  <span className="material-symbols-outlined text-[18px]">
+                    admin_panel_settings
+                  </span>
                 </div>
                 <div>
-                  <h4 className="text-xs font-bold text-[#4A353A]">RBAC Role Enforcement</h4>
-                  <p className="text-[11px] text-[#7D676E]">Bảo vệ endpoint nhạy cảm (User vs Admin)</p>
+                  <h4 className="text-xs font-bold text-[#4A353A]">
+                    RBAC Role Enforcement
+                  </h4>
+                  <p className="text-[11px] text-[#7D676E]">
+                    Bảo vệ endpoint nhạy cảm (User vs Admin)
+                  </p>
                 </div>
               </div>
 
               <div className="flex items-center gap-3 p-3 rounded-2xl bg-[#FFFFFF] border border-[#FAD6DF] shadow-2xs">
                 <div className="w-8 h-8 rounded-xl bg-[#FFF8E6] text-[#B45309] flex items-center justify-center shrink-0">
-                  <span className="material-symbols-outlined text-[18px]">fingerprint</span>
+                  <span className="material-symbols-outlined text-[18px]">
+                    fingerprint
+                  </span>
                 </div>
                 <div>
-                  <h4 className="text-xs font-bold text-[#4A353A]">Google Identity Federation</h4>
-                  <p className="text-[11px] text-[#7D676E]">Đăng nhập Google Popup liên kết tài khoản</p>
+                  <h4 className="text-xs font-bold text-[#4A353A]">
+                    Google Identity Federation
+                  </h4>
+                  <p className="text-[11px] text-[#7D676E]">
+                    Đăng nhập Google Popup liên kết tài khoản
+                  </p>
                 </div>
               </div>
             </div>
@@ -331,14 +383,18 @@ export function AuthPage({ onLoginSuccess }) {
               </div>
 
               <span className="text-xs text-[#7D676E] font-medium hidden sm:inline">
-                {activeTab === "signin" ? "Xác thực tài khoản" : "Tạo tài khoản mới"}
+                {activeTab === "signin"
+                  ? "Xác thực tài khoản"
+                  : "Tạo tài khoản mới"}
               </span>
             </div>
 
             {/* Error Notification Alert Banner */}
             {errorMessage && (
               <div className="mb-6 p-4 rounded-2xl bg-[#FFEBF0] border border-[#FFCCD7] text-[#C8234D] flex items-start gap-3 animate-in fade-in duration-200">
-                <span className="material-symbols-outlined text-[20px] shrink-0 mt-0.5">error</span>
+                <span className="material-symbols-outlined text-[20px] shrink-0 mt-0.5">
+                  error
+                </span>
                 <div className="text-xs">
                   <p className="font-bold">Lỗi xác thực</p>
                   <p className="mt-0.5">{errorMessage}</p>
@@ -348,7 +404,10 @@ export function AuthPage({ onLoginSuccess }) {
 
             {/* FORM 1: SIGN IN */}
             {activeTab === "signin" && (
-              <form onSubmit={handleSignInSubmit} className="space-y-4 animate-in fade-in duration-200">
+              <form
+                onSubmit={handleSignInSubmit}
+                className="space-y-4 animate-in fade-in duration-200"
+              >
                 <Input
                   label="Địa chỉ Email"
                   hint="Required"
@@ -356,7 +415,11 @@ export function AuthPage({ onLoginSuccess }) {
                   placeholder="admin@authshield.io"
                   value={signinEmail}
                   onChange={(e) => setSigninEmail(e.target.value)}
-                  iconLeft={<span className="material-symbols-outlined text-[18px]">mail</span>}
+                  iconLeft={
+                    <span className="material-symbols-outlined text-[18px]">
+                      mail
+                    </span>
+                  }
                   required
                 />
 
@@ -367,7 +430,11 @@ export function AuthPage({ onLoginSuccess }) {
                   placeholder="••••••••"
                   value={signinPassword}
                   onChange={(e) => setSigninPassword(e.target.value)}
-                  iconLeft={<span className="material-symbols-outlined text-[18px]">lock</span>}
+                  iconLeft={
+                    <span className="material-symbols-outlined text-[18px]">
+                      lock
+                    </span>
+                  }
                   iconRight={
                     <button
                       type="button"
@@ -413,7 +480,11 @@ export function AuthPage({ onLoginSuccess }) {
                     size="md"
                     isLoading={loading}
                     className="w-full py-3"
-                    icon={<span className="material-symbols-outlined text-[18px]">login</span>}
+                    icon={
+                      <span className="material-symbols-outlined text-[18px]">
+                        login
+                      </span>
+                    }
                   >
                     {loading ? "Đang xác thực..." : "Đăng nhập"}
                   </Button>
@@ -423,7 +494,10 @@ export function AuthPage({ onLoginSuccess }) {
 
             {/* FORM 2: REGISTER */}
             {activeTab === "register" && (
-              <form onSubmit={handleRegisterSubmit} className="space-y-4 animate-in fade-in duration-200">
+              <form
+                onSubmit={handleRegisterSubmit}
+                className="space-y-4 animate-in fade-in duration-200"
+              >
                 <Input
                   label="Họ và Tên"
                   hint="Display name"
@@ -431,7 +505,11 @@ export function AuthPage({ onLoginSuccess }) {
                   placeholder="Nguyễn Văn A"
                   value={regName}
                   onChange={(e) => setRegName(e.target.value)}
-                  iconLeft={<span className="material-symbols-outlined text-[18px]">person</span>}
+                  iconLeft={
+                    <span className="material-symbols-outlined text-[18px]">
+                      person
+                    </span>
+                  }
                   required
                 />
 
@@ -442,7 +520,11 @@ export function AuthPage({ onLoginSuccess }) {
                   placeholder="user@example.com"
                   value={regEmail}
                   onChange={(e) => setRegEmail(e.target.value)}
-                  iconLeft={<span className="material-symbols-outlined text-[18px]">mail</span>}
+                  iconLeft={
+                    <span className="material-symbols-outlined text-[18px]">
+                      mail
+                    </span>
+                  }
                   required
                 />
 
@@ -454,7 +536,11 @@ export function AuthPage({ onLoginSuccess }) {
                     placeholder="Tối thiểu 6 ký tự"
                     value={regPassword}
                     onChange={(e) => setRegPassword(e.target.value)}
-                    iconLeft={<span className="material-symbols-outlined text-[18px]">lock</span>}
+                    iconLeft={
+                      <span className="material-symbols-outlined text-[18px]">
+                        lock
+                      </span>
+                    }
                     iconRight={
                       <button
                         type="button"
@@ -474,7 +560,9 @@ export function AuthPage({ onLoginSuccess }) {
                   {regPassword.length > 0 && (
                     <div className="space-y-1 pt-1">
                       <div className="flex items-center justify-between text-[11px]">
-                        <span className="text-[#7D676E]">Độ mạnh mật khẩu:</span>
+                        <span className="text-[#7D676E]">
+                          Độ mạnh mật khẩu:
+                        </span>
                         <span className={`font-semibold ${strengthInfo.color}`}>
                           {strengthInfo.text}
                         </span>
@@ -482,19 +570,25 @@ export function AuthPage({ onLoginSuccess }) {
                       <div className="w-full bg-[#FAF0F2] rounded-full h-1.5 overflow-hidden flex gap-1">
                         <div
                           className={`h-full transition-all duration-300 ${
-                            strengthScore >= 1 ? strengthInfo.bg : "bg-transparent"
+                            strengthScore >= 1
+                              ? strengthInfo.bg
+                              : "bg-transparent"
                           }`}
                           style={{ width: "33%" }}
                         />
                         <div
                           className={`h-full transition-all duration-300 ${
-                            strengthScore >= 2 ? strengthInfo.bg : "bg-transparent"
+                            strengthScore >= 2
+                              ? strengthInfo.bg
+                              : "bg-transparent"
                           }`}
                           style={{ width: "33%" }}
                         />
                         <div
                           className={`h-full transition-all duration-300 ${
-                            strengthScore >= 3 ? strengthInfo.bg : "bg-transparent"
+                            strengthScore >= 3
+                              ? strengthInfo.bg
+                              : "bg-transparent"
                           }`}
                           style={{ width: "34%" }}
                         />
@@ -510,11 +604,17 @@ export function AuthPage({ onLoginSuccess }) {
                   placeholder="Nhập lại mật khẩu"
                   value={regConfirmPassword}
                   onChange={(e) => setRegConfirmPassword(e.target.value)}
-                  iconLeft={<span className="material-symbols-outlined text-[18px]">verified</span>}
+                  iconLeft={
+                    <span className="material-symbols-outlined text-[18px]">
+                      verified
+                    </span>
+                  }
                   iconRight={
                     <button
                       type="button"
-                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      onClick={() =>
+                        setShowConfirmPassword(!showConfirmPassword)
+                      }
                       className="cursor-pointer hover:text-[#4A353A] transition-colors"
                       tabIndex={-1}
                     >
@@ -534,7 +634,8 @@ export function AuthPage({ onLoginSuccess }) {
                     className="mt-0.5 rounded border-[#FAD6DF] text-[#FF69B4] focus:ring-[#FF8DA1]"
                   />
                   <span>
-                    Tôi đồng ý với chính sách bảo mật và điều khoản sử dụng AuthShield.
+                    Tôi đồng ý với chính sách bảo mật và điều khoản sử dụng
+                    AuthShield.
                   </span>
                 </label>
 
@@ -545,9 +646,15 @@ export function AuthPage({ onLoginSuccess }) {
                     size="md"
                     isLoading={loading}
                     className="w-full py-3"
-                    icon={<span className="material-symbols-outlined text-[18px]">person_add</span>}
+                    icon={
+                      <span className="material-symbols-outlined text-[18px]">
+                        person_add
+                      </span>
+                    }
                   >
-                    {loading ? "Đang khởi tạo tài khoản..." : "Tạo tài khoản mới"}
+                    {loading
+                      ? "Đang khởi tạo tài khoản..."
+                      : "Tạo tài khoản mới"}
                   </Button>
                 </div>
               </form>
@@ -655,19 +762,24 @@ export function AuthPage({ onLoginSuccess }) {
           {/* Feedback messages */}
           {forgotErrorMsg && (
             <div className="p-3.5 rounded-2xl bg-[#FFEBF0] border border-[#FFCCD7] text-[#C8234D] text-xs flex items-start gap-2">
-              <span className="material-symbols-outlined text-[18px] shrink-0">error</span>
+              <span className="material-symbols-outlined text-[18px] shrink-0">
+                error
+              </span>
               <span>{forgotErrorMsg}</span>
             </div>
           )}
 
           {forgotStatusMsg && (
             <div className="p-3.5 rounded-2xl bg-[#E8F8F5] border border-[#B9ECE1] text-[#1B7A5C] text-xs flex items-start gap-2">
-              <span className="material-symbols-outlined text-[18px] shrink-0">check_circle</span>
+              <span className="material-symbols-outlined text-[18px] shrink-0">
+                check_circle
+              </span>
               <div>
                 <p className="font-semibold">{forgotStatusMsg}</p>
                 <p className="mt-1 text-[11px] text-[#0E6251]">
-                  Nếu nhận được mã Token đặt lại mật khẩu, bạn hãy chuyển sang tab{" "}
-                  <strong>"2. Đặt lại mật khẩu mới"</strong> để cập nhật mật khẩu.
+                  Nếu nhận được mã Token đặt lại mật khẩu, bạn hãy chuyển sang
+                  tab <strong>"2. Đặt lại mật khẩu mới"</strong> để cập nhật mật
+                  khẩu.
                 </p>
               </div>
             </div>
@@ -677,7 +789,8 @@ export function AuthPage({ onLoginSuccess }) {
           {forgotStep === "forgot" && (
             <form onSubmit={handleForgotPasswordSubmit} className="space-y-4">
               <p className="text-xs text-[#7D676E]">
-                Nhập địa chỉ email liên kết với tài khoản của bạn để nhận mã hướng dẫn đặt lại mật khẩu (API:{" "}
+                Nhập địa chỉ email liên kết với tài khoản của bạn để nhận mã
+                hướng dẫn đặt lại mật khẩu (API:{" "}
                 <code className="bg-[#FFF0F5] text-[#D84A75] px-1 py-0.5 rounded font-mono">
                   POST /api/auth/forgot-password
                 </code>
@@ -690,7 +803,11 @@ export function AuthPage({ onLoginSuccess }) {
                 placeholder="name@example.com"
                 value={forgotEmail}
                 onChange={(e) => setForgotEmail(e.target.value)}
-                iconLeft={<span className="material-symbols-outlined text-[18px]">mail</span>}
+                iconLeft={
+                  <span className="material-symbols-outlined text-[18px]">
+                    mail
+                  </span>
+                }
                 required
               />
 
@@ -700,9 +817,15 @@ export function AuthPage({ onLoginSuccess }) {
                 size="md"
                 isLoading={forgotLoading}
                 className="w-full"
-                icon={<span className="material-symbols-outlined text-[18px]">send</span>}
+                icon={
+                  <span className="material-symbols-outlined text-[18px]">
+                    send
+                  </span>
+                }
               >
-                {forgotLoading ? "Đang gửi yêu cầu..." : "Gửi yêu cầu đặt lại mật khẩu"}
+                {forgotLoading
+                  ? "Đang gửi yêu cầu..."
+                  : "Gửi yêu cầu đặt lại mật khẩu"}
               </Button>
             </form>
           )}
@@ -724,7 +847,11 @@ export function AuthPage({ onLoginSuccess }) {
                 placeholder="Dán mã Token vào đây"
                 value={resetToken}
                 onChange={(e) => setResetToken(e.target.value)}
-                iconLeft={<span className="material-symbols-outlined text-[18px]">vpn_key</span>}
+                iconLeft={
+                  <span className="material-symbols-outlined text-[18px]">
+                    vpn_key
+                  </span>
+                }
                 required
               />
 
@@ -735,7 +862,11 @@ export function AuthPage({ onLoginSuccess }) {
                 placeholder="Nhập mật khẩu mới"
                 value={resetNewPassword}
                 onChange={(e) => setResetNewPassword(e.target.value)}
-                iconLeft={<span className="material-symbols-outlined text-[18px]">lock</span>}
+                iconLeft={
+                  <span className="material-symbols-outlined text-[18px]">
+                    lock
+                  </span>
+                }
                 required
               />
 
@@ -746,7 +877,11 @@ export function AuthPage({ onLoginSuccess }) {
                 placeholder="Nhập lại mật khẩu mới"
                 value={resetConfirmPassword}
                 onChange={(e) => setResetConfirmPassword(e.target.value)}
-                iconLeft={<span className="material-symbols-outlined text-[18px]">verified</span>}
+                iconLeft={
+                  <span className="material-symbols-outlined text-[18px]">
+                    verified
+                  </span>
+                }
                 required
               />
 
@@ -756,16 +891,27 @@ export function AuthPage({ onLoginSuccess }) {
                 size="md"
                 isLoading={forgotLoading}
                 className="w-full"
-                icon={<span className="material-symbols-outlined text-[18px]">save</span>}
+                icon={
+                  <span className="material-symbols-outlined text-[18px]">
+                    save
+                  </span>
+                }
               >
-                {forgotLoading ? "Đang lưu mật khẩu..." : "Xác nhận đặt lại mật khẩu"}
+                {forgotLoading
+                  ? "Đang lưu mật khẩu..."
+                  : "Xác nhận đặt lại mật khẩu"}
               </Button>
             </form>
           )}
         </div>
       </Modal>
 
-      <Toast show={showToast} message={toastMessage} type={toastType} onClose={() => setShowToast(false)} />
+      <Toast
+        show={showToast}
+        message={toastMessage}
+        type={toastType}
+        onClose={() => setShowToast(false)}
+      />
     </div>
   );
 }
