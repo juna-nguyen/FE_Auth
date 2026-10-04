@@ -25,6 +25,8 @@ export default function GoogleLoginButton({ onLoginSuccess, onLoginFailure }) {
 
       if (onLoginSuccess) {
         onLoginSuccess(data);
+        //direct to home page
+        window.location.href = "/";
       }
     } catch (error) {
       console.error("Google Sign-In Error:", error);
