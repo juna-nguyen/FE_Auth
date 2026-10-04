@@ -1,9 +1,11 @@
-﻿import React, { useState } from "react";
+import React, { useState } from "react";
 import Button from "../../components/ui/Button";
 import Input from "../../components/ui/Input";
 import GoogleLoginButton from "../../components/GoogleLoginButton";
 import Toast from "../../components/ui/Toast";
+import Modal from "../../components/ui/Modal";
 import { useAuth } from "../../context/useAuth";
+import { authApi } from "../../services/api";
 
 export function AuthPage({ onLoginSuccess }) {
   const { login, register } = useAuth();
@@ -22,6 +24,17 @@ export function AuthPage({ onLoginSuccess }) {
   const [regConfirmPassword, setRegConfirmPassword] = useState("");
   const [regTerms, setRegTerms] = useState(true);
 
+  // Forgot / Reset Password state
+  const [showForgotModal, setShowForgotModal] = useState(false);
+  const [forgotStep, setForgotStep] = useState("forgot"); // "forgot" | "reset"
+  const [forgotEmail, setForgotEmail] = useState("");
+  const [resetToken, setResetToken] = useState("");
+  const [resetNewPassword, setResetNewPassword] = useState("");
+  const [resetConfirmPassword, setResetConfirmPassword] = useState("");
+  const [forgotLoading, setForgotLoading] = useState(false);
+  const [forgotStatusMsg, setForgotStatusMsg] = useState("");
+  const [forgotErrorMsg, setForgotErrorMsg] = useState("");
+
   // Loading & error/toast notifications
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -34,6 +47,74 @@ export function AuthPage({ onLoginSuccess }) {
     setToastType(type);
     setShowToast(true);
     setTimeout(() => setShowToast(false), 4000);
+  };
+
+  // Xử lý gửi yêu cầu quên mật khẩu (POST /api/auth/forgot-password)
+  const handleForgotPasswordSubmit = async (e) => {
+    e.preventDefault();
+    setForgotErrorMsg("");
+    setForgotStatusMsg("");
+
+    if (!forgotEmail.trim()) {
+      setForgotErrorMsg("Vui lòng nhập địa chỉ email của bạn.");
+      return;
+    }
+
+    setForgotLoading(true);
+    try {
+      const res = await authApi.forgotPassword({ email: forgotEmail.trim() });
+      setForgotStatusMsg(
+        res?.message || "Nếu email tồn tại, hướng dẫn đặt lại mật khẩu đã được gửi."
+      );
+      triggerToast("Yêu cầu đã được gửi thành công!", "success");
+    } catch (err) {
+      console.error("Forgot password error:", err);
+      setForgotErrorMsg(err?.message || "Gửi yêu cầu thất bại. Vui lòng thử lại.");
+    } finally {
+      setForgotLoading(false);
+    }
+  };
+
+  // Xử lý đặt lại mật khẩu mới (POST /api/auth/reset-password)
+  const handleResetPasswordSubmit = async (e) => {
+    e.preventDefault();
+    setForgotErrorMsg("");
+    setForgotStatusMsg("");
+
+    if (!resetToken.trim()) {
+      setForgotErrorMsg("Vui lòng nhập mã token đặt lại mật khẩu.");
+      return;
+    }
+
+    if (!resetNewPassword || resetNewPassword.length < 6) {
+      setForgotErrorMsg("Mật khẩu mới phải có ít nhất 6 ký tự.");
+      return;
+    }
+
+    if (resetNewPassword !== resetConfirmPassword) {
+      setForgotErrorMsg("Mật khẩu xác nhận không khớp.");
+      return;
+    }
+
+    setForgotLoading(true);
+    try {
+      const res = await authApi.resetPassword({
+        token: resetToken.trim(),
+        newPassword: resetNewPassword,
+      });
+
+      triggerToast(res?.message || "Đặt lại mật khẩu thành công! Vui lòng đăng nhập.", "success");
+      setShowForgotModal(false);
+      setResetToken("");
+      setResetNewPassword("");
+      setResetConfirmPassword("");
+      setActiveTab("signin");
+    } catch (err) {
+      console.error("Reset password error:", err);
+      setForgotErrorMsg(err?.message || "Đặt lại mật khẩu thất bại. Token có thể không hợp lệ hoặc đã hết hạn.");
+    } finally {
+      setForgotLoading(false);
+    }
   };
 
   // Password entropy meter computation for Register UI
@@ -313,9 +394,12 @@ export function AuthPage({ onLoginSuccess }) {
                   </label>
                   <button
                     type="button"
-                    onClick={() =>
-                      triggerToast("Vui lòng liên hệ Admin hệ thống để khôi phục tài khoản.", "info")
-                    }
+                    onClick={() => {
+                      setForgotErrorMsg("");
+                      setForgotStatusMsg("");
+                      setForgotEmail(signinEmail);
+                      setShowForgotModal(true);
+                    }}
                     className="text-[#D84A75] hover:underline font-semibold cursor-pointer"
                   >
                     Quên mật khẩu?
@@ -520,6 +604,166 @@ export function AuthPage({ onLoginSuccess }) {
           </div>
         </div>
       </div>
+
+      {/* MODAL: Quên & Đặt lại mật khẩu (POST /api/auth/forgot-password & /api/auth/reset-password) */}
+      <Modal
+        isOpen={showForgotModal}
+        onClose={() => setShowForgotModal(false)}
+        title="Khôi phục & Đặt lại mật khẩu"
+        subtitle="Hệ thống xác thực bảo mật tài khoản"
+        footer={
+          <Button variant="secondary" onClick={() => setShowForgotModal(false)}>
+            Đóng
+          </Button>
+        }
+      >
+        <div className="space-y-4">
+          {/* Step Switcher Tabs */}
+          <div className="flex items-center gap-2 p-1 rounded-2xl bg-[#FFF0F5] border border-[#FAD6DF]">
+            <button
+              type="button"
+              onClick={() => {
+                setForgotStep("forgot");
+                setForgotErrorMsg("");
+                setForgotStatusMsg("");
+              }}
+              className={`flex-1 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                forgotStep === "forgot"
+                  ? "bg-gradient-to-r from-[#FF8DA1] to-[#FF69B4] text-white shadow-xs"
+                  : "text-[#7D676E] hover:text-[#4A353A]"
+              }`}
+            >
+              1. Gửi yêu cầu qua Email
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setForgotStep("reset");
+                setForgotErrorMsg("");
+                setForgotStatusMsg("");
+              }}
+              className={`flex-1 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                forgotStep === "reset"
+                  ? "bg-gradient-to-r from-[#FF8DA1] to-[#FF69B4] text-white shadow-xs"
+                  : "text-[#7D676E] hover:text-[#4A353A]"
+              }`}
+            >
+              2. Đặt lại mật khẩu mới
+            </button>
+          </div>
+
+          {/* Feedback messages */}
+          {forgotErrorMsg && (
+            <div className="p-3.5 rounded-2xl bg-[#FFEBF0] border border-[#FFCCD7] text-[#C8234D] text-xs flex items-start gap-2">
+              <span className="material-symbols-outlined text-[18px] shrink-0">error</span>
+              <span>{forgotErrorMsg}</span>
+            </div>
+          )}
+
+          {forgotStatusMsg && (
+            <div className="p-3.5 rounded-2xl bg-[#E8F8F5] border border-[#B9ECE1] text-[#1B7A5C] text-xs flex items-start gap-2">
+              <span className="material-symbols-outlined text-[18px] shrink-0">check_circle</span>
+              <div>
+                <p className="font-semibold">{forgotStatusMsg}</p>
+                <p className="mt-1 text-[11px] text-[#0E6251]">
+                  Nếu nhận được mã Token đặt lại mật khẩu, bạn hãy chuyển sang tab{" "}
+                  <strong>"2. Đặt lại mật khẩu mới"</strong> để cập nhật mật khẩu.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* STEP 1: Gửi yêu cầu quên mật khẩu */}
+          {forgotStep === "forgot" && (
+            <form onSubmit={handleForgotPasswordSubmit} className="space-y-4">
+              <p className="text-xs text-[#7D676E]">
+                Nhập địa chỉ email liên kết với tài khoản của bạn để nhận mã hướng dẫn đặt lại mật khẩu (API:{" "}
+                <code className="bg-[#FFF0F5] text-[#D84A75] px-1 py-0.5 rounded font-mono">
+                  POST /api/auth/forgot-password
+                </code>
+                ).
+              </p>
+
+              <Input
+                label="Email tài khoản"
+                type="email"
+                placeholder="name@example.com"
+                value={forgotEmail}
+                onChange={(e) => setForgotEmail(e.target.value)}
+                iconLeft={<span className="material-symbols-outlined text-[18px]">mail</span>}
+                required
+              />
+
+              <Button
+                type="submit"
+                variant="primary"
+                size="md"
+                isLoading={forgotLoading}
+                className="w-full"
+                icon={<span className="material-symbols-outlined text-[18px]">send</span>}
+              >
+                {forgotLoading ? "Đang gửi yêu cầu..." : "Gửi yêu cầu đặt lại mật khẩu"}
+              </Button>
+            </form>
+          )}
+
+          {/* STEP 2: Nhập Token và Mật khẩu mới */}
+          {forgotStep === "reset" && (
+            <form onSubmit={handleResetPasswordSubmit} className="space-y-4">
+              <p className="text-xs text-[#7D676E]">
+                Nhập mã Token xác thực nhận được và thiết lập mật khẩu mới (API:{" "}
+                <code className="bg-[#FFF0F5] text-[#D84A75] px-1 py-0.5 rounded font-mono">
+                  POST /api/auth/reset-password
+                </code>
+                ).
+              </p>
+
+              <Input
+                label="Mã Token xác thực"
+                hint="Nhận qua email / link"
+                placeholder="Dán mã Token vào đây"
+                value={resetToken}
+                onChange={(e) => setResetToken(e.target.value)}
+                iconLeft={<span className="material-symbols-outlined text-[18px]">vpn_key</span>}
+                required
+              />
+
+              <Input
+                label="Mật khẩu mới"
+                hint="Tối thiểu 6 ký tự"
+                type="password"
+                placeholder="Nhập mật khẩu mới"
+                value={resetNewPassword}
+                onChange={(e) => setResetNewPassword(e.target.value)}
+                iconLeft={<span className="material-symbols-outlined text-[18px]">lock</span>}
+                required
+              />
+
+              <Input
+                label="Xác nhận mật khẩu mới"
+                hint="Match password"
+                type="password"
+                placeholder="Nhập lại mật khẩu mới"
+                value={resetConfirmPassword}
+                onChange={(e) => setResetConfirmPassword(e.target.value)}
+                iconLeft={<span className="material-symbols-outlined text-[18px]">verified</span>}
+                required
+              />
+
+              <Button
+                type="submit"
+                variant="primary"
+                size="md"
+                isLoading={forgotLoading}
+                className="w-full"
+                icon={<span className="material-symbols-outlined text-[18px]">save</span>}
+              >
+                {forgotLoading ? "Đang lưu mật khẩu..." : "Xác nhận đặt lại mật khẩu"}
+              </Button>
+            </form>
+          )}
+        </div>
+      </Modal>
 
       <Toast show={showToast} message={toastMessage} type={toastType} onClose={() => setShowToast(false)} />
     </div>

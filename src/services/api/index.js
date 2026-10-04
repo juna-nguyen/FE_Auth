@@ -1,138 +1,38 @@
-﻿/**
- * Core API Client with JWT Bearer token management, request/response interceptors, and error handling.
+/**
+ * Core API Client & Services Layer
+ * Tuân thủ quy chuẩn tích hợp theo API_DOCUMENTATION.md (Axios + Interceptors)
  */
 
-const DEFAULT_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
+export * from "./apiClient";
+export * from "./apiUser";
 
-// Normalize baseURL so it does not have a trailing slash
-export const API_BASE_URL = DEFAULT_BASE_URL.replace(/\/$/, "");
-
-export const TOKEN_KEY = "token";
-export const USER_KEY = "user";
-
-export const getToken = () => {
-  try {
-    return localStorage.getItem(TOKEN_KEY) || "";
-  } catch {
-    return "";
-  }
-};
-
-export const setToken = (token) => {
-  try {
-    if (token) {
-      localStorage.setItem(TOKEN_KEY, token);
-    } else {
-      localStorage.removeItem(TOKEN_KEY);
-    }
-  } catch (e) {
-    console.error("Failed to persist token", e);
-  }
-};
-
-export const getStoredUser = () => {
-  try {
-    const raw = localStorage.getItem(USER_KEY);
-    return raw ? JSON.parse(raw) : null;
-  } catch {
-    return null;
-  }
-};
-
-export const setStoredUser = (user) => {
-  try {
-    if (user) {
-      localStorage.setItem(USER_KEY, JSON.stringify(user));
-    } else {
-      localStorage.removeItem(USER_KEY);
-    }
-  } catch (e) {
-    console.error("Failed to persist user", e);
-  }
-};
-
-export const clearAuth = () => {
-  setToken(null);
-  setStoredUser(null);
-};
+import apiClient, { API_BASE_URL, getToken, clearAuth } from "./apiClient";
+import authApi from "./apiUser";
 
 /**
- * Universal request wrapper for backend API endpoints
- * @param {string} endpoint - e.g. "/api/auth/login" or full URL
+ * Request wrapper hỗ trợ tương thích ngược cho các module cũ nếu cần
+ * @param {string} endpoint
  * @param {RequestInit} [options]
  */
 export async function apiRequest(endpoint, options = {}) {
-  const url = endpoint.startsWith("http")
-    ? endpoint
-    : `${API_BASE_URL}${endpoint.startsWith("/") ? endpoint : `/${endpoint}`}`;
+  const method = (options.method || "GET").toLowerCase();
+  let data = undefined;
 
-  const token = getToken();
-
-  const headers = {
-    "Content-Type": "application/json",
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    ...(options.headers || {}),
-  };
-
-  const config = {
-    ...options,
-    headers,
-  };
-
-  try {
-    const response = await fetch(url, config);
-
-    let data = null;
-    const contentType = response.headers.get("content-type");
-    if (contentType && contentType.includes("application/json")) {
-      data = await response.json();
-    } else {
-      const text = await response.text();
-      data = text ? { message: text } : {};
+  if (options.body) {
+    try {
+      data = typeof options.body === "string" ? JSON.parse(options.body) : options.body;
+    } catch {
+      data = options.body;
     }
-
-    if (!response.ok) {
-      const errorPayload = {
-        statusCode: response.status,
-        statusText: response.statusText,
-        message:
-          data?.message ||
-          (response.status === 401
-            ? "Unauthorized: Token không hợp lệ hoặc đã hết hạn"
-            : response.status === 403
-            ? "Forbidden: Bạn không có quyền truy cập"
-            : response.status === 404
-            ? "Not Found: Không tìm thấy tài nguyên"
-            : response.status === 409
-            ? "Conflict: Dữ liệu đã tồn tại"
-            : `Lỗi máy chủ (${response.status})`),
-        error: data?.error || (response.status === 403 ? "Forbidden" : response.status === 401 ? "Unauthorized" : "Error"),
-        ...data,
-      };
-
-      if (response.status === 401) {
-        clearAuth();
-      }
-
-      return Promise.reject(errorPayload);
-    }
-
-    return data;
-  } catch (error) {
-    if (error && error.statusCode) {
-      throw error;
-    }
-    const networkError = {
-      statusCode: 0,
-      error: "NetworkError",
-      message:
-        error?.message ||
-        "Không thể kết nối đến máy chủ API. Vui lòng kiểm tra lại kết nối mạng hoặc server.",
-    };
-    throw networkError;
   }
+
+  return apiClient.request({
+    url: endpoint,
+    method,
+    data,
+    headers: options.headers,
+  });
 }
 
-export * from "./apiUser";
-export default apiRequest;
+export { authApi };
+export default apiClient;

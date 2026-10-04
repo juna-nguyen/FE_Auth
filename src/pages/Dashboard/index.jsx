@@ -1,14 +1,17 @@
-﻿import React, { useState } from "react";
+import React, { useState } from "react";
 import Card, { CardHeader, CardTitle, CardDescription, CardContent } from "../../components/ui/Card";
 import Button from "../../components/ui/Button";
 import Badge from "../../components/ui/Badge";
 import Modal from "../../components/ui/Modal";
 import Toast from "../../components/ui/Toast";
 import { authApi } from "../../services/api/apiUser";
+import { API_BASE_URL } from "../../services/api";
 
 export function DashboardPage({ user, onNavigate }) {
   const [showSimModal, setShowSimModal] = useState(false);
   const [showJsonModal, setShowJsonModal] = useState(false);
+  const [liveSpec, setLiveSpec] = useState(null);
+  const [specLoading, setSpecLoading] = useState(false);
   const [adminTestData, setAdminTestData] = useState(null);
   const [adminError, setAdminError] = useState(null);
   const [adminLoading, setAdminLoading] = useState(false);
@@ -21,6 +24,24 @@ export function DashboardPage({ user, onNavigate }) {
     setToastType(type);
     setShowToast(true);
     setTimeout(() => setShowToast(false), 3500);
+  };
+
+  const handleOpenSpec = async () => {
+    setShowJsonModal(true);
+    if (!liveSpec) {
+      setSpecLoading(true);
+      try {
+        const res = await fetch(`${API_BASE_URL}/api-docs.json`);
+        if (res.ok) {
+          const json = await res.json();
+          setLiveSpec(json);
+        }
+      } catch (e) {
+        console.warn("Could not fetch live swagger spec:", e);
+      } finally {
+        setSpecLoading(false);
+      }
+    }
   };
 
   const isAdmin = user?.role === "admin";
@@ -123,7 +144,7 @@ export function DashboardPage({ user, onNavigate }) {
           <Button
             variant="secondary"
             size="sm"
-            onClick={() => setShowJsonModal(true)}
+            onClick={handleOpenSpec}
             icon={<span className="material-symbols-outlined text-[16px]">code</span>}
           >
             OpenAPI Spec
@@ -487,8 +508,15 @@ export function DashboardPage({ user, onNavigate }) {
         }
       >
         <div className="p-4 rounded-2xl bg-[#FFF0F5] border border-[#FAD6DF] font-mono text-xs text-[#4A353A] max-h-96 overflow-y-auto">
-          <pre className="text-[11px] leading-relaxed">
-{`{
+          {specLoading ? (
+            <div className="py-8 text-center text-[#7D676E] animate-pulse">
+              Đang tải thông tin OpenAPI Specification từ server...
+            </div>
+          ) : (
+            <pre className="text-[11px] leading-relaxed">
+{liveSpec
+  ? JSON.stringify(liveSpec, null, 2)
+  : `{
   "openapi": "3.1.0",
   "info": {
     "title": "AuthShield Pastel API Auth",
@@ -514,6 +542,12 @@ export function DashboardPage({ user, onNavigate }) {
     "/api/auth/change-password": {
       "put": { "summary": "Change password", "body": { "oldPassword": "str", "newPassword": "str" } }
     },
+    "/api/auth/forgot-password": {
+      "post": { "summary": "Forgot password request via email", "body": { "email": "str" } }
+    },
+    "/api/auth/reset-password": {
+      "post": { "summary": "Reset password with token", "body": { "token": "str", "newPassword": "str" } }
+    },
     "/api/auth/logout": {
       "post": { "summary": "Logout user" }
     },
@@ -522,7 +556,8 @@ export function DashboardPage({ user, onNavigate }) {
     }
   }
 }`}
-          </pre>
+            </pre>
+          )}
         </div>
       </Modal>
 
