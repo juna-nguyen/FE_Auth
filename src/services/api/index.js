@@ -6,7 +6,7 @@
 export * from "./apiClient";
 export * from "./apiUser";
 
-import apiClient, { API_BASE_URL, getToken, clearAuth } from "./apiClient";
+import apiClient from "./apiClient";
 import authApi from "./apiUser";
 
 /**

@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { AuthContext } from "./authContextInstance";
 import { authApi } from "../services/api/apiUser";
 import {
@@ -95,6 +95,16 @@ export function AuthProvider({ children }) {
     return await authApi.changePassword({ oldPassword, newPassword });
   };
 
+  // Quên mật khẩu - gửi email yêu cầu
+  const forgotPassword = async (email) => {
+    return await authApi.forgotPassword({ email });
+  };
+
+  // Đặt lại mật khẩu mới bằng token
+  const resetPassword = async ({ token, newPassword }) => {
+    return await authApi.resetPassword({ token, newPassword });
+  };
+
   // Đăng xuất
   const logout = async () => {
     try {
@@ -128,6 +138,8 @@ export function AuthProvider({ children }) {
     googleLogin,
     logout,
     changePassword,
+    forgotPassword,
+    resetPassword,
     refreshMe,
     updateUser,
   };

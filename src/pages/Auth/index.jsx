@@ -8,7 +8,7 @@ import { useAuth } from "../../context/useAuth";
 import { authApi } from "../../services/api";
 
 export function AuthPage({ onLoginSuccess }) {
-  const { login, register } = useAuth();
+  const { login, register, forgotPassword, resetPassword } = useAuth();
   const [activeTab, setActiveTab] = useState("signin"); // "signin" | "register"
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -24,13 +24,32 @@ export function AuthPage({ onLoginSuccess }) {
   const [regConfirmPassword, setRegConfirmPassword] = useState("");
   const [regTerms, setRegTerms] = useState(true);
 
+  // Lấy mã token khôi phục nếu mở trang qua liên kết email (?token=...)
+  const getInitialResetToken = () => {
+    try {
+      const searchParams = new URLSearchParams(window.location.search);
+      let tokenFromUrl = searchParams.get("token");
+      if (!tokenFromUrl && window.location.hash.includes("token=")) {
+        const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+        tokenFromUrl = hashParams.get("token");
+      }
+      return tokenFromUrl || "";
+    } catch {
+      return "";
+    }
+  };
+
+  const initialToken = getInitialResetToken();
+
   // Forgot / Reset Password state
-  const [showForgotModal, setShowForgotModal] = useState(false);
-  const [forgotStep, setForgotStep] = useState("forgot"); // "forgot" | "reset"
+  const [resetToken, setResetToken] = useState(() => initialToken);
+  const [showForgotModal, setShowForgotModal] = useState(() => Boolean(initialToken));
+  const [forgotStep, setForgotStep] = useState(() => (initialToken ? "reset" : "forgot"));
   const [forgotEmail, setForgotEmail] = useState("");
-  const [resetToken, setResetToken] = useState("");
   const [resetNewPassword, setResetNewPassword] = useState("");
   const [resetConfirmPassword, setResetConfirmPassword] = useState("");
+  const [showResetNewPassword, setShowResetNewPassword] = useState(false);
+  const [showResetConfirmPassword, setShowResetConfirmPassword] = useState(false);
   const [forgotLoading, setForgotLoading] = useState(false);
   const [forgotStatusMsg, setForgotStatusMsg] = useState("");
   const [forgotErrorMsg, setForgotErrorMsg] = useState("");
@@ -38,9 +57,15 @@ export function AuthPage({ onLoginSuccess }) {
   // Loading & error/toast notifications
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  const [toastMessage, setToastMessage] = useState("");
-  const [toastType, setToastType] = useState("success");
-  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState(() =>
+    initialToken
+      ? "Đã nhận mã xác thực từ email. Vui lòng thiết lập mật khẩu mới!"
+      : ""
+  );
+  const [toastType, setToastType] = useState(() =>
+    initialToken ? "info" : "success"
+  );
+  const [showToast, setShowToast] = useState(() => Boolean(initialToken));
 
   const triggerToast = (msg, type = "success") => {
     setToastMessage(msg);
@@ -55,14 +80,23 @@ export function AuthPage({ onLoginSuccess }) {
     setForgotErrorMsg("");
     setForgotStatusMsg("");
 
-    if (!forgotEmail.trim()) {
+    const emailVal = forgotEmail.trim();
+    if (!emailVal) {
       setForgotErrorMsg("Vui lòng nhập địa chỉ email của bạn.");
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(emailVal)) {
+      setForgotErrorMsg("Định dạng email không hợp lệ (Ví dụ: user@example.com).");
       return;
     }
 
     setForgotLoading(true);
     try {
-      const res = await authApi.forgotPassword({ email: forgotEmail.trim() });
+      const res = await (forgotPassword
+        ? forgotPassword(emailVal)
+        : authApi.forgotPassword({ email: emailVal }));
       setForgotStatusMsg(
         res?.message ||
           "Nếu email tồn tại, hướng dẫn đặt lại mật khẩu đã được gửi.",
@@ -84,7 +118,8 @@ export function AuthPage({ onLoginSuccess }) {
     setForgotErrorMsg("");
     setForgotStatusMsg("");
 
-    if (!resetToken.trim()) {
+    const tokenVal = resetToken.trim();
+    if (!tokenVal) {
       setForgotErrorMsg("Vui lòng nhập mã token đặt lại mật khẩu.");
       return;
     }
@@ -101,10 +136,15 @@ export function AuthPage({ onLoginSuccess }) {
 
     setForgotLoading(true);
     try {
-      const res = await authApi.resetPassword({
-        token: resetToken.trim(),
-        newPassword: resetNewPassword,
-      });
+      const res = await (resetPassword
+        ? resetPassword({
+            token: tokenVal,
+            newPassword: resetNewPassword,
+          })
+        : authApi.resetPassword({
+            token: tokenVal,
+            newPassword: resetNewPassword,
+          }));
 
       triggerToast(
         res?.message || "Đặt lại mật khẩu thành công! Vui lòng đăng nhập.",
@@ -115,6 +155,17 @@ export function AuthPage({ onLoginSuccess }) {
       setResetNewPassword("");
       setResetConfirmPassword("");
       setActiveTab("signin");
+
+      // Xóa query param token khỏi URL nếu có
+      if (window.history && window.history.replaceState) {
+        const cleanUrl = new URL(window.location.href);
+        cleanUrl.searchParams.delete("token");
+        window.history.replaceState(
+          {},
+          document.title,
+          cleanUrl.pathname + (cleanUrl.search ? cleanUrl.search : ""),
+        );
+      }
     } catch (err) {
       console.error("Reset password error:", err);
       setForgotErrorMsg(
@@ -774,13 +825,22 @@ export function AuthPage({ onLoginSuccess }) {
               <span className="material-symbols-outlined text-[18px] shrink-0">
                 check_circle
               </span>
-              <div>
+              <div className="space-y-2 flex-1">
                 <p className="font-semibold">{forgotStatusMsg}</p>
-                <p className="mt-1 text-[11px] text-[#0E6251]">
-                  Nếu nhận được mã Token đặt lại mật khẩu, bạn hãy chuyển sang
-                  tab <strong>"2. Đặt lại mật khẩu mới"</strong> để cập nhật mật
-                  khẩu.
+                <p className="text-[11px] text-[#0E6251]">
+                  Nếu nhận được mã Token đặt lại mật khẩu từ email, bạn có thể chuyển sang bước tiếp theo để cập nhật mật khẩu mới.
                 </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setForgotStep("reset");
+                    setForgotErrorMsg("");
+                  }}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#1B7A5C] text-white text-xs font-semibold hover:bg-[#15634a] transition-colors cursor-pointer"
+                >
+                  <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
+                  Chuyển sang Bước 2: Đặt mật khẩu mới
+                </button>
               </div>
             </div>
           )}
@@ -843,7 +903,7 @@ export function AuthPage({ onLoginSuccess }) {
 
               <Input
                 label="Mã Token xác thực"
-                hint="Nhận qua email / link"
+                hint="Nhận qua email / link (?token=...)"
                 placeholder="Dán mã Token vào đây"
                 value={resetToken}
                 onChange={(e) => setResetToken(e.target.value)}
@@ -858,7 +918,7 @@ export function AuthPage({ onLoginSuccess }) {
               <Input
                 label="Mật khẩu mới"
                 hint="Tối thiểu 6 ký tự"
-                type="password"
+                type={showResetNewPassword ? "text" : "password"}
                 placeholder="Nhập mật khẩu mới"
                 value={resetNewPassword}
                 onChange={(e) => setResetNewPassword(e.target.value)}
@@ -867,13 +927,25 @@ export function AuthPage({ onLoginSuccess }) {
                     lock
                   </span>
                 }
+                iconRight={
+                  <button
+                    type="button"
+                    onClick={() => setShowResetNewPassword(!showResetNewPassword)}
+                    className="cursor-pointer hover:text-[#4A353A] transition-colors"
+                    tabIndex={-1}
+                  >
+                    <span className="material-symbols-outlined text-[18px]">
+                      {showResetNewPassword ? "visibility_off" : "visibility"}
+                    </span>
+                  </button>
+                }
                 required
               />
 
               <Input
                 label="Xác nhận mật khẩu mới"
-                hint="Match password"
-                type="password"
+                hint="Khớp với mật khẩu trên"
+                type={showResetConfirmPassword ? "text" : "password"}
                 placeholder="Nhập lại mật khẩu mới"
                 value={resetConfirmPassword}
                 onChange={(e) => setResetConfirmPassword(e.target.value)}
@@ -881,6 +953,18 @@ export function AuthPage({ onLoginSuccess }) {
                   <span className="material-symbols-outlined text-[18px]">
                     verified
                   </span>
+                }
+                iconRight={
+                  <button
+                    type="button"
+                    onClick={() => setShowResetConfirmPassword(!showResetConfirmPassword)}
+                    className="cursor-pointer hover:text-[#4A353A] transition-colors"
+                    tabIndex={-1}
+                  >
+                    <span className="material-symbols-outlined text-[18px]">
+                      {showResetConfirmPassword ? "visibility_off" : "visibility"}
+                    </span>
+                  </button>
                 }
                 required
               />
